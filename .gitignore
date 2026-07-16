@@ -1,0 +1,39 @@
+# PHP / Laravel
+/vendor/
+backend/vendor/
+.env
+backend/.env
+backend/storage/logs/*
+!backend/storage/logs/.gitignore
+!backend/storage/logs/.gitkeep
+backend/storage/framework/cache/*
+!backend/storage/framework/cache/.gitignore
+!backend/storage/framework/cache/.gitkeep
+backend/storage/framework/sessions/*
+!backend/storage/framework/sessions/.gitignore
+!backend/storage/framework/sessions/.gitkeep
+backend/storage/framework/views/*
+!backend/storage/framework/views/.gitignore
+!backend/storage/framework/views/.gitkeep
+backend/bootstrap/cache/*
+!backend/bootstrap/cache/.gitignore
+
+# Node / React
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.env.local
+frontend/.env.local
+
+# Docker
+.env.docker
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
