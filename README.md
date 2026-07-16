@@ -85,6 +85,14 @@ Oravil Academy Platform is bootstrapped as a full-stack foundation with:
 - Frontend CI steps:
   ```bash
   cd frontend
-  npm install
-  npm run build
+  pnpm install --frozen-lockfile
+  pnpm build
   ```
+
+## Quality Standards
+
+- `cd backend && composer lint` — auto-fix PHP code style
+- `cd backend && composer lint:check` — check PHP code style (CI)
+- `cd backend && composer analyse` — run PHPStan static analysis
+- `cd frontend && pnpm lint` — run ESLint
+- `cd frontend && pnpm format` — run Prettier
