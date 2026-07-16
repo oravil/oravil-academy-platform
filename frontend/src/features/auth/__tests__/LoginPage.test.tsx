@@ -15,7 +15,7 @@ function renderLoginPage(initialEntry = '/login') {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <LoginPage />
-    </MemoryRouter>,
+    </MemoryRouter>
   )
 }
 
@@ -87,7 +87,7 @@ describe('LoginPage', () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<div>Home</div>} />
         </Routes>
-      </MemoryRouter>,
+      </MemoryRouter>
     )
 
     await user.type(screen.getByLabelText(/email/i), 'user@example.com')

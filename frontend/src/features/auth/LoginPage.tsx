@@ -56,9 +56,7 @@ export function LoginPage() {
               })}
               aria-invalid={!!errors.email}
             />
-            {errors.email && (
-              <p className="text-sm text-red-600">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
           </div>
           <div className="space-y-1">
             <label htmlFor="password" className="text-sm font-medium">
@@ -71,13 +69,9 @@ export function LoginPage() {
               {...register('password', { required: 'Password is required' })}
               aria-invalid={!!errors.password}
             />
-            {errors.password && (
-              <p className="text-sm text-red-600">{errors.password.message}</p>
-            )}
+            {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
           </div>
-          {errors.root && (
-            <p className="text-sm text-red-600">{errors.root.message}</p>
-          )}
+          {errors.root && <p className="text-sm text-red-600">{errors.root.message}</p>}
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? 'Signing in…' : 'Sign in'}
           </Button>
