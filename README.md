@@ -6,17 +6,17 @@ Oravil Academy Platform is bootstrapped as a full-stack foundation with:
 
 ## Prerequisites
 
-- PHP 8.2+
+- PHP 8.3+
 - Composer
-- Node.js 20+
-- Docker
+- Node.js 20+ (for React frontend)
+- Docker & Docker Compose v2
 
 ## Installation
 
 1. Clone the repository.
 2. Start PostgreSQL:
    ```bash
-   docker-compose up -d postgres
+   docker compose up -d
    ```
 3. Set up backend:
    ```bash
@@ -44,6 +44,34 @@ Oravil Academy Platform is bootstrapped as a full-stack foundation with:
   cd frontend
   npm run dev
   ```
+
+## Local Development
+
+### Prerequisites
+- Docker & Docker Compose v2
+- PHP 8.3+ (for Laravel backend)
+- Node.js 20+ (for React frontend)
+
+### Database (Docker)
+
+1. Copy the environment file:
+   ```bash
+   cp .env.docker.example .env.docker
+   ```
+2. Start PostgreSQL:
+   ```bash
+   docker compose up -d
+   ```
+3. (Optional) Start PostgreSQL + pgAdmin:
+   ```bash
+   docker compose --profile tools up -d
+   ```
+4. Verify services are healthy:
+   ```bash
+   docker compose ps
+   ```
+
+> **Note:** `.env.docker` is git-ignored. Never commit credentials.
 
 ## Running CI Locally
 
