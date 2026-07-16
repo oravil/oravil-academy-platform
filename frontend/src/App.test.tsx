@@ -1,10 +1,16 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import React from 'react'
+import { describe, it, expect, vi } from 'vitest'
 import App from './App'
 
+vi.mock('./features/auth/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useAuth: () => ({ isAuthenticated: false, isLoading: false, login: vi.fn(), logout: vi.fn() }),
+}))
+
 describe('App', () => {
-  it('renders the app heading', () => {
+  it('renders the login page when unauthenticated', () => {
     render(<App />)
-    expect(screen.getByText('Oravil Academy')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
   })
 })
