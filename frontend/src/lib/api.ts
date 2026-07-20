@@ -67,10 +67,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export interface LearnerResponse {
-  id: string
+  learner_id: string
   email: string
   display_name: string
-  enrolled_at: string
 }
 
 export function isApiError(error: unknown): error is ApiErrorShape {

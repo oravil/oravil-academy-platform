@@ -22,10 +22,9 @@ class LearnerResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'learner_id' => $this->id,
             'email' => $this->email,
             'display_name' => $this->display_name,
-            'enrolled_at' => $this->enrolled_at->toIso8601String(),
         ];
     }
 }

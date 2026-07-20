@@ -1,8 +1,7 @@
 export interface Learner {
-  id: string
+  learner_id: string
   email: string
   display_name: string
-  enrolled_at: string
 }
 
 export interface AuthState {

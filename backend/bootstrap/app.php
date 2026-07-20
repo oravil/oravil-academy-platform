@@ -6,7 +6,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,6 +22,21 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (HttpException $exception, Request $request) {
+            if (
+                $exception->getStatusCode() === 419
+                && $exception->getPrevious() instanceof TokenMismatchException
+                && $request->expectsJson()
+            ) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'CSRF_TOKEN_MISMATCH',
+                        'message' => 'CSRF token mismatch.',
+                    ],
+                ], 419);
+            }
+        });
+
         $exceptions->render(function (AuthenticationException $exception, Request $request) {
             if ($request->expectsJson()) {
                 return response()->json([

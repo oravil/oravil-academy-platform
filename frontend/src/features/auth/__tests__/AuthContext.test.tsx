@@ -73,10 +73,9 @@ describe('AuthProvider', () => {
 
   it('retrieves authenticated learner state from /v1/auth/me', async () => {
     getMe.mockResolvedValue({
-      id: '0f8fad5b-d9cb-469f-a165-70867728950e',
+      learner_id: '0f8fad5b-d9cb-469f-a165-70867728950e',
       email: 'learner@example.com',
       display_name: 'Learner One',
-      enrolled_at: '2026-07-20T00:00:00+00:00',
     })
 
     renderAuthApp()
@@ -104,10 +103,9 @@ describe('AuthProvider', () => {
     getMe
       .mockRejectedValueOnce({ status: 401, message: 'Authentication required.' })
       .mockResolvedValueOnce({
-        id: '0f8fad5b-d9cb-469f-a165-70867728950e',
+        learner_id: '0f8fad5b-d9cb-469f-a165-70867728950e',
         email: 'learner@example.com',
         display_name: 'Learner One',
-        enrolled_at: '2026-07-20T00:00:00+00:00',
       })
     login.mockResolvedValue(undefined)
 
@@ -130,10 +128,9 @@ describe('AuthProvider', () => {
     const user = userEvent.setup()
 
     getMe.mockResolvedValue({
-      id: '0f8fad5b-d9cb-469f-a165-70867728950e',
+      learner_id: '0f8fad5b-d9cb-469f-a165-70867728950e',
       email: 'learner@example.com',
       display_name: 'Learner One',
-      enrolled_at: '2026-07-20T00:00:00+00:00',
     })
     logout.mockResolvedValue(undefined)
 

@@ -20,18 +20,21 @@ describe('POST /v1/auth/login', function () {
         ]);
 
         $response->assertOk()
-            ->assertJson([
-                'id' => $learner->id,
+            ->assertExactJson([
+                'learner_id' => $learner->id,
                 'email' => 'learner@example.com',
                 'display_name' => $learner->display_name,
-            ])
-            ->assertJsonMissingPath('password_hash');
+            ]);
 
         $this->assertAuthenticatedAs($learner);
 
         $this->getJson('/v1/auth/me')
             ->assertOk()
-            ->assertJsonPath('id', $learner->id);
+            ->assertExactJson([
+                'learner_id' => $learner->id,
+                'email' => $learner->email,
+                'display_name' => $learner->display_name,
+            ]);
     });
 
     it('returns 401 with the approved error contract on invalid credentials', function () {
@@ -75,12 +78,11 @@ describe('GET /v1/auth/me', function () {
         $this->actingAs($learner)
             ->getJson('/v1/auth/me')
             ->assertOk()
-            ->assertJson([
-                'id' => $learner->id,
+            ->assertExactJson([
+                'learner_id' => $learner->id,
                 'email' => $learner->email,
                 'display_name' => $learner->display_name,
-            ])
-            ->assertJsonMissingPath('password_hash');
+            ]);
     });
 
     it('returns the approved 401 error contract for unauthenticated requests', function () {
@@ -114,6 +116,27 @@ describe('POST /v1/auth/logout', function () {
         $this->postJson('/v1/auth/logout')
             ->assertStatus(401)
             ->assertJsonPath('error.code', 'unauthenticated');
+    });
+});
+
+describe('CSRF protection', function () {
+    it('returns the approved error contract for missing CSRF state', function () {
+        $this->app->detectEnvironment(fn () => 'production');
+
+        try {
+            $this->postJson('/v1/auth/login', [
+                'email' => 'learner@example.com',
+                'password' => 'password',
+            ])->assertStatus(419)
+                ->assertExactJson([
+                    'error' => [
+                        'code' => 'CSRF_TOKEN_MISMATCH',
+                        'message' => 'CSRF token mismatch.',
+                    ],
+                ]);
+        } finally {
+            $this->app->detectEnvironment(fn () => 'testing');
+        }
     });
 });
 

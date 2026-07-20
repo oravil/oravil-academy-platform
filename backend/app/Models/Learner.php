@@ -15,6 +15,8 @@ class Learner extends Authenticatable
     /** @use HasFactory<LearnerFactory> */
     use HasFactory, HasUuids, Notifiable;
 
+    public $timestamps = false;
+
     /**
      * @var list<string>
      */

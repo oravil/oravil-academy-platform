@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -12,12 +13,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('learners', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('email')->unique();
-            $table->string('display_name');
-            $table->string('password_hash');
-            $table->timestamp('enrolled_at');
-            $table->timestamps();
+            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->text('email')->unique();
+            $table->text('display_name');
+            $table->text('password_hash');
+            $table->timestampTz('enrolled_at')->default(DB::raw('now()'));
         });
 
         Schema::create('sessions', function (Blueprint $table) {
