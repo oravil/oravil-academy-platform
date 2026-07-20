@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\LearnerResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,17 +12,17 @@ class LoginController extends Controller
 {
     public function __invoke(LoginRequest $request): JsonResponse
     {
-        if (! Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Invalid credentials.'], 422);
+        if (! Auth::guard('web')->attempt($request->validated())) {
+            return response()->json([
+                'error' => [
+                    'code' => 'invalid_credentials',
+                    'message' => 'Invalid credentials.',
+                ],
+            ], 401);
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $token = $user->createToken('api')->plainTextToken;
+        $request->session()->regenerate();
 
-        return response()->json([
-            'user' => new UserResource($user),
-            'token' => $token,
-        ]);
+        return (new LearnerResource($request->user()))->response();
     }
 }

@@ -13,7 +13,10 @@ vi.mock('../AuthContext', () => ({
 
 function renderLoginPage(initialEntry = '/login') {
   return render(
-    <MemoryRouter initialEntries={[initialEntry]}>
+    <MemoryRouter
+      initialEntries={[initialEntry]}
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <LoginPage />
     </MemoryRouter>
   )
@@ -49,6 +52,21 @@ describe('LoginPage', () => {
     expect(mockLogin).not.toHaveBeenCalled()
   })
 
+  it('shows the zod email validation message for invalid email input', async () => {
+    const user = userEvent.setup()
+    renderLoginPage()
+
+    await user.type(screen.getByLabelText(/email/i), 'invalid-email')
+    await user.type(screen.getByLabelText(/password/i), 'secret123')
+    await user.click(screen.getByRole('button', { name: /sign in/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Invalid email address')).toBeInTheDocument()
+    })
+
+    expect(mockLogin).not.toHaveBeenCalled()
+  })
+
   it('calls auth.login with correct credentials on valid submit', async () => {
     const user = userEvent.setup()
     mockLogin.mockResolvedValue(undefined)
@@ -65,7 +83,7 @@ describe('LoginPage', () => {
 
   it('shows server error message on login failure', async () => {
     const user = userEvent.setup()
-    mockLogin.mockRejectedValue({ message: 'Invalid credentials.' })
+    mockLogin.mockRejectedValue({ status: 401, message: 'Invalid credentials.' })
     renderLoginPage()
 
     await user.type(screen.getByLabelText(/email/i), 'user@example.com')
@@ -82,7 +100,10 @@ describe('LoginPage', () => {
     mockLogin.mockResolvedValue(undefined)
 
     render(
-      <MemoryRouter initialEntries={['/login']}>
+      <MemoryRouter
+        initialEntries={['/login']}
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<div>Home</div>} />

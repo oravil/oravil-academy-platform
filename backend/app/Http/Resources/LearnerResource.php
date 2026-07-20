@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class LearnerResource extends JsonResource
 {
     /**
      * @return array<string, mixed>
@@ -14,9 +14,9 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
             'email' => $this->email,
-            'created_at' => $this->created_at->toIso8601String(),
+            'display_name' => $this->display_name,
+            'enrolled_at' => $this->enrolled_at->toIso8601String(),
         ];
     }
 }

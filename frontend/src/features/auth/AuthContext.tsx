@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { getMe, login as apiLogin, logout as apiLogout } from '@/lib/api'
-import type { AuthState, User } from './types'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { getMe, isApiError, login as apiLogin, logout as apiLogout } from '@/lib/api'
+import type { AuthState, Learner } from './types'
 
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<void>
@@ -8,49 +9,48 @@ interface AuthContextValue extends AuthState {
 }
 
 const AuthContext = React.createContext<AuthContextValue | undefined>(undefined)
+export const AUTH_QUERY_KEY = ['auth', 'learner'] as const
+
+async function fetchAuthenticatedLearner(): Promise<Learner | null> {
+  try {
+    return await getMe()
+  } catch (error: unknown) {
+    if (isApiError(error) && error.status === 401) {
+      return null
+    }
+
+    throw error
+  }
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<User | null>(null)
-  const [token, setToken] = React.useState<string | null>(null)
-  const [isLoading, setIsLoading] = React.useState(true)
+  const queryClient = useQueryClient()
+  const { data: learner = null, isLoading } = useQuery({
+    queryKey: AUTH_QUERY_KEY,
+    queryFn: fetchAuthenticatedLearner,
+    retry: false,
+  })
 
-  React.useEffect(() => {
-    const storedToken = localStorage.getItem('auth_token')
-    if (!storedToken) {
-      setIsLoading(false)
-      return
-    }
-    setToken(storedToken)
-    getMe()
-      .then((u) => setUser(u))
-      .catch(() => {
-        localStorage.removeItem('auth_token')
-        setToken(null)
-      })
-      .finally(() => setIsLoading(false))
-  }, [])
-
-  const login = React.useCallback(async (email: string, password: string) => {
-    const data = await apiLogin(email, password)
-    localStorage.setItem('auth_token', data.token)
-    setToken(data.token)
-    setUser(data.user)
-  }, [])
+  const login = React.useCallback(
+    async (email: string, password: string) => {
+      await apiLogin(email, password)
+      const authenticatedLearner = await fetchAuthenticatedLearner()
+      queryClient.setQueryData(AUTH_QUERY_KEY, authenticatedLearner)
+    },
+    [queryClient]
+  )
 
   const logout = React.useCallback(async () => {
     try {
       await apiLogout()
     } finally {
-      localStorage.removeItem('auth_token')
-      setToken(null)
-      setUser(null)
+      queryClient.setQueryData(AUTH_QUERY_KEY, null)
     }
-  }, [])
+  }, [queryClient])
 
   const value: AuthContextValue = {
-    user,
-    token,
-    isAuthenticated: user !== null,
+    learner,
+    isAuthenticated: learner !== null,
     isLoading,
     login,
     logout,

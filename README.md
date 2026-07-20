@@ -1,7 +1,7 @@
 # Oravil Academy Platform
 
 Oravil Academy Platform is a full-stack web application built with:
-- **Backend:** Laravel 12 (PHP 8.2+) · PostgreSQL 16
+- **Backend:** Laravel 12 (PHP 8.4) · PostgreSQL 16
 - **Frontend:** React 18 + Vite + TypeScript
 
 ---
@@ -24,7 +24,7 @@ That's it. The bootstrap script will:
 7. Run database migrations
 8. Print next-step instructions
 
-> **Prerequisites:** PHP 8.3+, Composer, Node.js 20+, Docker & Docker Compose v2
+> **Prerequisites:** PHP 8.4, Composer, Node.js 20+, Docker & Docker Compose v2
 
 ---
 
@@ -32,7 +32,7 @@ That's it. The bootstrap script will:
 
 | Tool | Minimum version | Install |
 |------|----------------|---------|
-| PHP | 8.3+ | [php.net](https://www.php.net/downloads) |
+| PHP | 8.4 | [php.net](https://www.php.net/downloads) |
 | Composer | 2.x | [getcomposer.org](https://getcomposer.org/download/) |
 | Node.js | 20+ | [nodejs.org](https://nodejs.org) |
 | pnpm *(recommended)* | 9+ | `npm i -g pnpm` |
@@ -123,6 +123,9 @@ pnpm run dev                  # http://localhost:5173
 # Backend
 cd backend
 composer install --no-interaction --prefer-dist --no-progress
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --force
 php artisan test
 vendor/bin/pint --test
 vendor/bin/phpstan analyse --memory-limit=256M

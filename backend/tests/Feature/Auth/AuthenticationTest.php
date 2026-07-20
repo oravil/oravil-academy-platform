@@ -1,80 +1,129 @@
 <?php
 
-use App\Models\User;
+use App\Models\Learner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
-describe('POST /api/login', function () {
-    it('returns 200 with token and user on valid credentials', function () {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => bcrypt('password'),
+describe('POST /v1/auth/login', function () {
+    it('authenticates a manually provisioned learner and establishes a session', function () {
+        $learner = Learner::factory()->create([
+            'email' => 'learner@example.com',
+            'password_hash' => bcrypt('password'),
         ]);
 
-        $response = $this->postJson('/api/login', [
-            'email' => 'test@example.com',
+        $response = $this->postJson('/v1/auth/login', [
+            'email' => 'learner@example.com',
             'password' => 'password',
         ]);
 
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'user' => ['id', 'name', 'email', 'created_at'],
-                'token',
+        $response->assertOk()
+            ->assertJson([
+                'id' => $learner->id,
+                'email' => 'learner@example.com',
+                'display_name' => $learner->display_name,
             ])
-            ->assertJsonPath('user.email', 'test@example.com');
+            ->assertJsonMissingPath('password_hash');
 
-        expect($response->json('token'))->not->toBeNull();
+        $this->assertAuthenticatedAs($learner);
+
+        $this->getJson('/v1/auth/me')
+            ->assertOk()
+            ->assertJsonPath('id', $learner->id);
     });
 
-    it('returns 422 on invalid credentials', function () {
-        User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => bcrypt('password'),
+    it('returns 401 with the approved error contract on invalid credentials', function () {
+        Learner::factory()->create([
+            'email' => 'learner@example.com',
+            'password_hash' => bcrypt('password'),
         ]);
 
-        $this->postJson('/api/login', [
-            'email' => 'test@example.com',
+        $this->postJson('/v1/auth/login', [
+            'email' => 'learner@example.com',
             'password' => 'wrong-password',
+        ])->assertStatus(401)
+            ->assertJson([
+                'error' => [
+                    'code' => 'invalid_credentials',
+                    'message' => 'Invalid credentials.',
+                ],
+            ]);
+    });
+
+    it('returns 422 with validation fields for malformed requests', function () {
+        $this->postJson('/v1/auth/login', [
+            'email' => 'not-an-email',
         ])->assertStatus(422)
-            ->assertJsonPath('message', 'Invalid credentials.');
-    });
-
-    it('returns 422 on missing fields', function () {
-        $this->postJson('/api/login', [])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['email', 'password']);
-    });
-});
-
-describe('GET /api/me', function () {
-    it('returns 200 with user data when authenticated', function () {
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user);
-
-        $this->getJson('/api/me')
-            ->assertStatus(200)
-            ->assertJsonStructure(['id', 'name', 'email', 'created_at'])
-            ->assertJsonPath('email', $user->email);
-    });
-
-    it('returns 401 when unauthenticated', function () {
-        $this->getJson('/api/me')
-            ->assertStatus(401);
+            ->assertJsonPath('error.code', 'validation_error')
+            ->assertJsonFragment([
+                'field' => 'email',
+                'message' => 'The email field must be a valid email address.',
+            ])
+            ->assertJsonFragment([
+                'field' => 'password',
+                'message' => 'The password field is required.',
+            ]);
     });
 });
 
-describe('POST /api/logout', function () {
-    it('returns 204 and revokes token when authenticated', function () {
-        $user = User::factory()->create();
-        $token = $user->createToken('api')->plainTextToken;
+describe('GET /v1/auth/me', function () {
+    it('returns the authenticated learner without exposing the password hash', function () {
+        $learner = Learner::factory()->create();
 
-        $this->withHeader('Authorization', 'Bearer '.$token)
-            ->postJson('/api/logout')
-            ->assertStatus(204);
+        $this->actingAs($learner)
+            ->getJson('/v1/auth/me')
+            ->assertOk()
+            ->assertJson([
+                'id' => $learner->id,
+                'email' => $learner->email,
+                'display_name' => $learner->display_name,
+            ])
+            ->assertJsonMissingPath('password_hash');
+    });
 
-        expect($user->tokens()->count())->toBe(0);
+    it('returns the approved 401 error contract for unauthenticated requests', function () {
+        $this->getJson('/v1/auth/me')
+            ->assertStatus(401)
+            ->assertJson([
+                'error' => [
+                    'code' => 'unauthenticated',
+                    'message' => 'Authentication required.',
+                ],
+            ]);
+    });
+});
+
+describe('POST /v1/auth/logout', function () {
+    it('logs out an authenticated learner and invalidates the session', function () {
+        $learner = Learner::factory()->create();
+
+        $this->actingAs($learner)
+            ->postJson('/v1/auth/logout')
+            ->assertNoContent();
+
+        $this->assertGuest();
+
+        $this->getJson('/v1/auth/me')
+            ->assertStatus(401)
+            ->assertJsonPath('error.code', 'unauthenticated');
+    });
+
+    it('requires authentication', function () {
+        $this->postJson('/v1/auth/logout')
+            ->assertStatus(401)
+            ->assertJsonPath('error.code', 'unauthenticated');
+    });
+});
+
+describe('Learner identity model', function () {
+    it('uses the learner auth provider with UUID identifiers and password_hash credentials', function () {
+        $learner = Learner::factory()->create();
+
+        expect(Config::get('auth.providers.learners.model'))->toBe(Learner::class)
+            ->and($learner->getAuthPasswordName())->toBe('password_hash')
+            ->and($learner->id)->toBeString()
+            ->and(Str::isUuid($learner->id))->toBeTrue();
     });
 });

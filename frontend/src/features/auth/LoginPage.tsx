@@ -2,12 +2,9 @@ import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { isApiError } from '@/lib/api'
 import { useAuth } from './AuthContext'
-
-interface FormValues {
-  email: string
-  password: string
-}
+import { loginSchema, type LoginFormValues } from './loginSchema'
 
 export function LoginPage() {
   const { login, isAuthenticated, isLoading } = useAuth()
@@ -17,22 +14,49 @@ export function LoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    clearErrors,
     setError,
-  } = useForm<FormValues>()
+  } = useForm<LoginFormValues>({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
 
   if (!isLoading && isAuthenticated) {
     return <Navigate to="/" replace />
   }
 
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: LoginFormValues) => {
+    clearErrors()
+
+    const parsedValues = loginSchema.safeParse(values)
+
+    if (!parsedValues.success) {
+      parsedValues.error.issues.forEach((issue) => {
+        const field = issue.path[0]
+
+        if (field === 'email' || field === 'password') {
+          setError(field, { message: issue.message })
+        }
+      })
+
+      return
+    }
+
     try {
-      await login(values.email, values.password)
+      await login(parsedValues.data.email, parsedValues.data.password)
       navigate('/')
     } catch (err: unknown) {
-      const message =
-        err && typeof err === 'object' && 'message' in err
-          ? String((err as { message: string }).message)
-          : 'An error occurred. Please try again.'
+      if (isApiError(err) && Array.isArray(err.fields)) {
+        err.fields.forEach((fieldError) => {
+          if (fieldError.field === 'email' || fieldError.field === 'password') {
+            setError(fieldError.field, { message: fieldError.message })
+          }
+        })
+      }
+
+      const message = isApiError(err) ? err.message : 'An error occurred. Please try again.'
       setError('root', { message })
     }
   }
@@ -50,10 +74,7 @@ export function LoginPage() {
               id="email"
               type="email"
               autoComplete="email"
-              {...register('email', {
-                required: 'Email is required',
-                pattern: { value: /\S+@\S+\.\S+/, message: 'Invalid email address' },
-              })}
+              {...register('email')}
               aria-invalid={!!errors.email}
             />
             {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
@@ -66,7 +87,7 @@ export function LoginPage() {
               id="password"
               type="password"
               autoComplete="current-password"
-              {...register('password', { required: 'Password is required' })}
+              {...register('password')}
               aria-invalid={!!errors.password}
             />
             {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}

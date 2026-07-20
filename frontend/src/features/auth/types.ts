@@ -1,13 +1,12 @@
-export interface User {
-  id: number
-  name: string
+export interface Learner {
+  id: string
   email: string
-  created_at: string
+  display_name: string
+  enrolled_at: string
 }
 
 export interface AuthState {
-  user: User | null
-  token: string | null
+  learner: Learner | null
   isAuthenticated: boolean
   isLoading: boolean
 }
