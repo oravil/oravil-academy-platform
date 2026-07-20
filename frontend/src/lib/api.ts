@@ -1,30 +1,62 @@
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
-function getToken(): string | null {
-  return localStorage.getItem('auth_token')
+export interface ApiErrorField {
+  field: string
+  message: string
+}
+
+export interface ApiErrorShape {
+  status: number
+  code?: string
+  message: string
+  fields?: ApiErrorField[]
+}
+
+function getCookie(name: string): string | null {
+  const value = document.cookie.split('; ').find((cookie) => cookie.startsWith(`${name}=`))
+
+  return value ? decodeURIComponent(value.split('=').slice(1).join('=')) : null
+}
+
+function getXsrfToken(): string | null {
+  return getCookie('XSRF-TOKEN')
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getToken()
-
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     Accept: 'application/json',
     ...(options.headers as Record<string, string>),
   }
 
-  if (token) {
-    headers['Authorization'] = 'Bearer ' + token
+  const method = options.method?.toUpperCase() ?? 'GET'
+
+  if (options.body !== undefined) {
+    headers['Content-Type'] = 'application/json'
   }
 
-  const response = await fetch(`${BASE_URL}/api${path}`, {
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+    const xsrfToken = getXsrfToken()
+
+    if (xsrfToken) {
+      headers['X-XSRF-TOKEN'] = xsrfToken
+    }
+  }
+
+  const response = await fetch(`${BASE_URL}${path}`, {
     ...options,
+    credentials: 'include',
     headers,
   })
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}))
-    throw { status: response.status, ...body }
+    const error = body && typeof body === 'object' && 'error' in body ? body.error : {}
+    throw {
+      status: response.status,
+      code: typeof error?.code === 'string' ? error.code : undefined,
+      message: typeof error?.message === 'string' ? error.message : 'An unexpected error occurred.',
+      fields: Array.isArray(error?.fields) ? error.fields : undefined,
+    } satisfies ApiErrorShape
   }
 
   if (response.status === 204) {
@@ -34,29 +66,38 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return response.json() as Promise<T>
 }
 
-export interface LoginResponse {
-  user: { id: number; name: string; email: string; created_at: string }
-  token: string
-}
-
-export interface UserResponse {
-  id: number
-  name: string
+export interface LearnerResponse {
+  learner_id: string
   email: string
-  created_at: string
+  display_name: string
 }
 
-export function login(email: string, password: string): Promise<LoginResponse> {
-  return request<LoginResponse>('/login', {
+export function isApiError(error: unknown): error is ApiErrorShape {
+  return typeof error === 'object' && error !== null && 'status' in error && 'message' in error
+}
+
+export async function getCsrfCookie(): Promise<void> {
+  await fetch(`${BASE_URL}/sanctum/csrf-cookie`, {
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+    },
+  })
+}
+
+export async function login(email: string, password: string): Promise<LearnerResponse> {
+  await getCsrfCookie()
+
+  return request<LearnerResponse>('/v1/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   })
 }
 
 export function logout(): Promise<void> {
-  return request<void>('/logout', { method: 'POST' })
+  return request<void>('/v1/auth/logout', { method: 'POST' })
 }
 
-export function getMe(): Promise<UserResponse> {
-  return request<UserResponse>('/me')
+export function getMe(): Promise<LearnerResponse> {
+  return request<LearnerResponse>('/v1/auth/me')
 }

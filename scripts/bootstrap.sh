@@ -40,8 +40,8 @@ echo -e ""
 # ── 1. Prerequisites ─────────────────────────────────────────────────────────
 info "Checking prerequisites…"
 
-command_exists php    || error "PHP is not installed. Install PHP 8.3+ and try again."
-check_version php 8.2
+command_exists php    || error "PHP is not installed. Install PHP 8.4 and try again."
+check_version php 8.4
 success "PHP $(php --version | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')"
 
 command_exists composer || error "Composer is not installed. See https://getcomposer.org/download/"

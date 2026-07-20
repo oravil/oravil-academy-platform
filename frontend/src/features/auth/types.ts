@@ -1,13 +1,11 @@
-export interface User {
-  id: number
-  name: string
+export interface Learner {
+  learner_id: string
   email: string
-  created_at: string
+  display_name: string
 }
 
 export interface AuthState {
-  user: User | null
-  token: string | null
+  learner: Learner | null
   isAuthenticated: boolean
   isLoading: boolean
 }
