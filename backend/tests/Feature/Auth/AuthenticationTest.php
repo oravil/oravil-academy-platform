@@ -131,7 +131,7 @@ describe('CSRF protection', function () {
                 ->assertExactJson([
                     'error' => [
                         'code' => 'CSRF_TOKEN_MISMATCH',
-                        'message' => 'CSRF token mismatch.',
+                        'message' => 'CSRF token is invalid or expired.',
                     ],
                 ]);
         } finally {

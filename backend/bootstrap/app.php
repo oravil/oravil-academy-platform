@@ -31,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'error' => [
                         'code' => 'CSRF_TOKEN_MISMATCH',
-                        'message' => 'CSRF token mismatch.',
+                        'message' => 'CSRF token is invalid or expired.',
                     ],
                 ], 419);
             }
