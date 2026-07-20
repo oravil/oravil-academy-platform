@@ -5,7 +5,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MeController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('auth')->group(function () {
+Route::middleware('web')->prefix('auth')->group(function () {
     Route::post('/login', LoginController::class);
 
     Route::middleware('auth:sanctum')->group(function () {

@@ -10,6 +10,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class LearnerResource extends JsonResource
 {
     /**
+     * The "data" wrapper that should be applied.
+     *
+     * @var string|null
+     */
+    public static $wrap = null;
+
+    /**
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array

@@ -15,6 +15,10 @@ class LogoutController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        // Reset any resolved guards (including the request-scoped Sanctum guard)
+        // so no stale authenticated learner is reported after the session ends.
+        Auth::forgetGuards();
+
         return response()->noContent();
     }
 }
