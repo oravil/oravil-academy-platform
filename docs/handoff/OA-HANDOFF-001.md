@@ -279,9 +279,17 @@ repo. Anything not listed here is out of scope (CLAUDE.md §3).
 
 ## 5. Open questions for the Product Owner
 
-1. PMV-003: pin server to PHP 8.4 or amend decision to 8.5?
+1. ~~PMV-003: pin server to PHP 8.4 or amend decision to 8.5?~~ **RESOLVED
+   2026-07-21:** pin to 8.4 via `update-alternatives`. Execution pending
+   (Task 4).
 2. OA-MVP-006/007/010 statuses read "Draft — Pending Product Owner Approval"
    while functioning as approved references. Formally promote to Approved?
-3. Confirm the browser URL used during smoke testing (needed for PMV-002 D1).
+3. ~~Confirm the browser URL used during smoke testing (needed for PMV-002
+   D1).~~ **RESOLVED 2026-07-21:** `http://localhost:5173`.
+4. **Backlog (2026-07-21):** What is the actual provisioning process for
+   real pilot learners at launch time? ADR-0005 mandates manual provisioning
+   with no self-registration, but no document defines the mechanism
+   (artisan command? manual DB insert? admin script?). Product Owner
+   decision needed before launch, not before Task 6/7.
 
 **END OF OA-HANDOFF-001**
