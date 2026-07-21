@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         Learner::firstOrCreate(
             ['email' => 'test@example.com'],
             Learner::factory()->raw([
+                'email' => 'test@example.com',
                 'display_name' => 'Test Learner',
                 'enrolled_at' => now(),
             ])
