@@ -30,15 +30,24 @@ class ContentSeeder extends Seeder
             ['title' => 'Phase 0 — Foundations', 'position' => 1]
         );
 
-        // Title and deliverable_description: academy/learning-paths/digital-marketing/phase-0/module-1/MODULE_BRIEF.md
+        // Title, purpose, deliverable_description: academy/learning-paths/digital-marketing/phase-0/module-1/MODULE_BRIEF.md
+        $modulePurpose = 'Establish a shared understanding of what digital marketing is, how it differs from traditional marketing, what channels it encompasses, and what professional roles operate within it — providing the conceptual foundation required for all subsequent phases.';
+
         $moduleId = $this->firstOrInsertId('modules',
             ['phase_id' => $phaseId, 'slug' => 'module-1'],
             [
                 'title' => 'The Digital Marketing Landscape',
                 'position' => 1,
                 'deliverable_description' => 'A completed Digital Marketing Landscape Map: a structured document in which the learner categorizes the core channels, identifies at least two differentiating factors between digital and traditional marketing, and maps three professional roles to their primary responsibilities.',
+                'purpose' => $modulePurpose,
             ]
         );
+
+        // Backfill for rows seeded before the `purpose` column existed (OA-MVP-006 v1.2.0).
+        DB::table('modules')->where('id', $moduleId)->whereNull('purpose')->update([
+            'purpose' => $modulePurpose,
+            'updated_at' => now(),
+        ]);
 
         foreach ($this->lessons() as $position => $lesson) {
             $lessonId = $this->firstOrInsertId('lessons',

@@ -174,9 +174,10 @@ describe('modules schema', function () {
         $columns = contentSchemaColumns('modules');
 
         expect($columns->keys()->all())->toBe([
-            'id', 'phase_id', 'slug', 'title', 'position', 'deliverable_description', 'created_at', 'updated_at',
+            'id', 'phase_id', 'slug', 'title', 'position', 'deliverable_description', 'created_at', 'updated_at', 'purpose',
         ])->and($columns['deliverable_description']->is_nullable)->toBe('YES')
-            ->and($columns['position']->is_nullable)->toBe('NO');
+            ->and($columns['position']->is_nullable)->toBe('NO')
+            ->and($columns['purpose']->is_nullable)->toBe('YES');
     });
 
     it('rejects a module referencing a non-existent phase', function () {
