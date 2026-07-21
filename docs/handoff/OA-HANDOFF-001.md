@@ -46,13 +46,23 @@
 - Tooling/CI/Docker per CLAUDE.md §2. Seeder creates one Test Learner
   (`test@example.com`).
 
-### 1.3 Claimed but not independently verified [DONE-CLAIMED]
+### 1.3 Session zero verification results (2026-07-21)
 
-- "11 passed / 52 assertions" for `php artisan test` on the server.
-- `git tag platform-foundation-v1` pushed.
-- CI actually green on `main` at the latest commit.
-
-Session zero must re-establish all three with command output.
+- "11 passed / 52 assertions" for `php artisan test` on the server —
+  **[PARTIALLY VERIFIED]**. Reproducible only when the shell env forces
+  `DB_CONNECTION=pgsql` against the live Postgres service (matching CI's
+  job-level `env:` override). The bare documented command
+  (`cd backend && php artisan test`, equivalent to `make test`) fails 10/11 on
+  this server: `phpunit.xml` hardcodes `DB_CONNECTION=sqlite` / `:memory:`,
+  and the `learners`/`sessions` migration uses Postgres-only defaults
+  (`gen_random_uuid()`, `now()`) that SQLite rejects. Backlogged; fix deferred
+  to work-order Task 5 (remove the hardcoded DB env from `phpunit.xml`).
+- `git tag platform-foundation-v1` pushed — **[DISPROVEN]**. `git tag -l`
+  (local) and `gh api repos/oravil/oravil-academy-platform/tags` (remote) both
+  return empty. Tag will be cut at work-order Task 5, after the PMV-002 smoke
+  test closes.
+- CI actually green on `main` at the latest commit — **[VERIFIED]**. Run
+  `29855291930` for commit `cb9d416`: `completed` / `success`.
 
 ### 1.4 Not built yet [PLANNED]
 
