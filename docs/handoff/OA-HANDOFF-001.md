@@ -79,7 +79,7 @@ foundation/tooling/governance; smoke test still open — not rounded up).
 
 ## 2. Open problems (the entire current work queue)
 
-### PMV-002 — Browser session persistence bug [FIXED-UNVERIFIED] — TOP PRIORITY
+### PMV-002 — Browser session persistence bug [FIXED-VERIFIED] — TOP PRIORITY
 
 **Symptom (runtime, documented):** login returns 200 and an authenticated row
 exists in `sessions`; browser refresh → `GET /v1/auth/me` returns 401; Laravel
@@ -190,11 +190,11 @@ already supplies session/cookie/CSRF handling for these routes.
   was re-added anywhere.)
 - `cd frontend && pnpm test` → **3 files, 11 tests, all passed**
 
-Status is **FIXED-UNVERIFIED**, not FIXED-VERIFIED: all evidence above is
-curl-reproduced against `localhost`, not a live browser session. Becomes
-FIXED-VERIFIED only after the Product Owner independently confirms in an
-actual browser at `http://localhost:5173` (see browser verification script
-below).
+**Status: FIXED-VERIFIED (2026-07-21).** Product Owner independently confirmed
+via live browser testing at `http://localhost:5173`: multiple consecutive
+refreshes — more than the 5-refresh minimum exit criterion — all preserved
+the authenticated session (`GET /v1/auth/me` consistently 200, protected
+route rendered correctly, no unexpected logout or anonymous session reset).
 
 **Browser verification script (Product Owner — manual steps):**
 1. Open DevTools → Network tab (keep open), Application/Storage tab → Cookies
