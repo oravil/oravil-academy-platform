@@ -14,10 +14,11 @@ describe('POST /v1/auth/login', function () {
             'password_hash' => bcrypt('password'),
         ]);
 
-        $response = $this->postJson('/v1/auth/login', [
-            'email' => 'learner@example.com',
-            'password' => 'password',
-        ]);
+        $response = $this->withHeader('referer', 'http://localhost:5173')
+            ->postJson('/v1/auth/login', [
+                'email' => 'learner@example.com',
+                'password' => 'password',
+            ]);
 
         $response->assertOk()
             ->assertExactJson([
@@ -28,7 +29,8 @@ describe('POST /v1/auth/login', function () {
 
         $this->assertAuthenticatedAs($learner);
 
-        $this->getJson('/v1/auth/me')
+        $this->withHeader('referer', 'http://localhost:5173')
+            ->getJson('/v1/auth/me')
             ->assertOk()
             ->assertExactJson([
                 'learner_id' => $learner->id,
@@ -102,12 +104,14 @@ describe('POST /v1/auth/logout', function () {
         $learner = Learner::factory()->create();
 
         $this->actingAs($learner)
+            ->withHeader('referer', 'http://localhost:5173')
             ->postJson('/v1/auth/logout')
             ->assertNoContent();
 
         $this->assertGuest();
 
-        $this->getJson('/v1/auth/me')
+        $this->withHeader('referer', 'http://localhost:5173')
+            ->getJson('/v1/auth/me')
             ->assertStatus(401)
             ->assertJsonPath('error.code', 'unauthenticated');
     });
@@ -124,10 +128,11 @@ describe('CSRF protection', function () {
         $this->app->detectEnvironment(fn () => 'production');
 
         try {
-            $this->postJson('/v1/auth/login', [
-                'email' => 'learner@example.com',
-                'password' => 'password',
-            ])->assertStatus(419)
+            $this->withHeader('referer', 'http://localhost:5173')
+                ->postJson('/v1/auth/login', [
+                    'email' => 'learner@example.com',
+                    'password' => 'password',
+                ])->assertStatus(419)
                 ->assertExactJson([
                     'error' => [
                         'code' => 'CSRF_TOKEN_MISMATCH',
