@@ -2,6 +2,7 @@
 
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -11,7 +12,7 @@ uses(RefreshDatabase::class);
 /**
  * Returns column metadata (name, data_type, column_default, is_nullable) for a table, keyed by column_name.
  */
-function contentSchemaColumns(string $table): \Illuminate\Support\Collection
+function contentSchemaColumns(string $table): Collection
 {
     return collect(DB::select(<<<'SQL'
         SELECT column_name, data_type, column_default, is_nullable
