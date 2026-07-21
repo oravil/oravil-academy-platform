@@ -79,7 +79,7 @@ foundation/tooling/governance; smoke test still open — not rounded up).
 
 ## 2. Open problems (the entire current work queue)
 
-### PMV-002 — Browser session persistence bug [BLOCKED] — TOP PRIORITY
+### PMV-002 — Browser session persistence bug [FIXED-UNVERIFIED] — TOP PRIORITY
 
 **Symptom (runtime, documented):** login returns 200 and an authenticated row
 exists in `sessions`; browser refresh → `GET /v1/auth/me` returns 401; Laravel
@@ -142,6 +142,81 @@ Logout → success; /me → 401
 cd backend && php artisan test → all green (report exact counts)
 cd frontend && pnpm test → all green
 Regression: login, logout, refresh, CSRF (419 path) re-verified
+
+**Resolution (2026-07-21) — [FIXED-UNVERIFIED], pending Product Owner browser confirmation:**
+
+D1: browser URL confirmed as `http://localhost:5173` — no host/CORS mismatch,
+S1 **excluded** (matches every allowlist; `SANCTUM_STATEFUL_DOMAINS`,
+`CORS_ALLOWED_ORIGINS` both already cover this origin).
+
+D2-D3: `.env`/`config:show` confirmed no stateful-domain or session-driver
+misconfiguration.
+
+D4-D5 (curl-reproduced, since no live browser DevTools session was available):
+clean isolated repro with `sessions` table truncated, login via
+`/sanctum/csrf-cookie` → `POST /v1/auth/login` (200), then 5 consecutive
+`GET /v1/auth/me` calls reusing the same cookie jar, matching D1's exact
+origin. Pre-fix: refresh 1 → 200, refreshes 2-5 → 401; `sessions` table showed
+1 authenticated row + 3 anonymous rows created within the same request cycle —
+a direct match for the documented symptom.
+
+**Verified root cause: S2 (middleware duplication).** `routes/api.php` wrapped
+`/auth/*` in `Route::middleware('web')` while `bootstrap/app.php`'s
+`statefulApi()` already applies the equivalent stateful pipeline via
+`EnsureFrontendRequestsAreStateful`. Session middleware (`StartSession`,
+`EncryptCookies`) ran twice per request; on the first authenticated request
+after login, the duplicated pass failed to recognize the session and minted a
+fresh anonymous session, silently overwriting the authenticated cookie in the
+`Set-Cookie` response header. S3 was not needed to explain the symptom.
+
+**Fix applied (commit `e4ce4df`):** removed the redundant
+`Route::middleware('web')` wrapper from `routes/api.php`; `statefulApi()`
+already supplies session/cookie/CSRF handling for these routes.
+
+**Post-fix verification (curl, matching D1 origin exactly):**
+- `csrf-cookie` → `login` → 200, `Set-Cookie` present (XSRF-TOKEN + session)
+- 5 consecutive `/v1/auth/me` calls → all 200, same learner returned each time
+- `sessions` table after 5 refreshes: **1 row, authenticated, no anonymous
+  rows created**
+- `logout` → 204; `/me` after logout → 401 `unauthenticated`
+- CSRF negative path: missing `X-XSRF-TOKEN` → 419; invalid token → 419, both
+  with the approved `CSRF_TOKEN_MISMATCH` error envelope
+- `cd backend && php artisan test` (env-forced pgsql) → **11 passed, 52
+  assertions** (3 tests in `AuthenticationTest.php` required adding a
+  `Referer: http://localhost:5173` header to keep exercising the real
+  stateful path — `Sanctum::fromFrontend()` gates session middleware on
+  `Referer`/`Origin` matching `SANCTUM_STATEFUL_DOMAINS`, which the test
+  client does not send by default. Route fix was not reverted; no `web` group
+  was re-added anywhere.)
+- `cd frontend && pnpm test` → **3 files, 11 tests, all passed**
+
+Status is **FIXED-UNVERIFIED**, not FIXED-VERIFIED: all evidence above is
+curl-reproduced against `localhost`, not a live browser session. Becomes
+FIXED-VERIFIED only after the Product Owner independently confirms in an
+actual browser at `http://localhost:5173` (see browser verification script
+below).
+
+**Browser verification script (Product Owner — manual steps):**
+1. Open DevTools → Network tab (keep open), Application/Storage tab → Cookies
+   for `localhost:5173`. Clear cookies for both `localhost:5173` and
+   `localhost:8000` first (or use a fresh Incognito window).
+2. Navigate to `http://localhost:5173`, log in with the seeded test learner
+   (`test@example.com` / `password`).
+3. In Network tab, find the `POST /v1/auth/login` request → confirm response
+   headers include two `Set-Cookie` entries (`XSRF-TOKEN`, session cookie) and
+   status 200.
+4. Refresh the page (F5) **5 times**. Each time, find the `GET /v1/auth/me`
+   (or equivalent) request in Network tab → confirm status 200 each time, and
+   that the learner stays logged in (no bounce to login screen).
+5. In Application/Storage → Cookies, confirm the session cookie's value stays
+   associated with the same session (visually: it may still rotate ciphertext
+   per response — that's expected IV randomization — the important check is
+   you never get logged out).
+6. Click Logout → confirm redirect/UI shows logged-out state. Try navigating
+   to an authenticated route or reloading → confirm you're treated as logged
+   out (401 in Network tab for `/me`, or redirect to login).
+7. Report back: which steps passed/failed, and paste/screenshot any
+   unexpected status codes from the Network tab.
 
 ### PMV-001 — bootstrap.sh reports success when migrate fails [PLANNED]
 
