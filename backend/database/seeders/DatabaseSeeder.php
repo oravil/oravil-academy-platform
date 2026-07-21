@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Learner;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,15 +14,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Learner::factory(10)->create();
+        // Real MVP content (Phase 0, Module 1) — see SPRINT-001, OA-MVP-004, OA-MVP-006.
+        $this->call(ContentSeeder::class);
 
-        Learner::firstOrCreate(
-            ['email' => 'test@example.com'],
-            Learner::factory()->raw([
-                'email' => 'test@example.com',
-                'display_name' => 'Test Learner',
-                'enrolled_at' => now(),
-            ])
-        );
+        // Dev convenience only — a local test learner, not MVP content.
+        $this->call(DevLearnerSeeder::class);
     }
 }
