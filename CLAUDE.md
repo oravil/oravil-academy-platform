@@ -32,7 +32,8 @@ of silently complying.
 
 ## 2. Stack (decided — do not change)
 
-- Backend: Laravel 12, PHP **8.4** (composer `^8.4`, CI pinned 8.4)
+- Backend: Laravel 12, PHP **8.5** (composer `^8.5`, CI pinned 8.5; amended
+  from 8.4 per ADR-0007 — 8.4 is not apt-installable on this server's OS)
 - Auth: **Sanctum stateful SPA cookie authentication** (ADR-0006). No bearer
   tokens. No localStorage. CSRF via `/sanctum/csrf-cookie` + `X-XSRF-TOKEN`.
 - Database: PostgreSQL 16 (Docker Compose service `postgres`)
