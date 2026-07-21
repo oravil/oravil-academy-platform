@@ -75,13 +75,16 @@
 
 ### 1.4 Not built yet [PLANNED]
 
-- VS-002 Module Overview; Steps 5-9 of OA-MVP-010.
-- (Content tables (9) and Step 2 Content Seeding are now COMPLETE — see §3 Task 6.)
+- VS-003 Lesson View (Step 5 of OA-MVP-010) — next up.
+- Steps 6-9 of OA-MVP-010 (Assignment Submission, Module Completion, Survey,
+  End-to-End Verification) remain after that.
+- (Content tables (9), Step 2 Content Seeding, and Step 4 Module Overview are
+  now COMPLETE — see §3 Tasks 6-7.)
 
 ### 1.5 Completion estimate
 
-~35% toward v0.1 (Steps 1 and 3 of nine done in code, weighted for
-foundation/tooling/governance; smoke test still open — not rounded up).
+Steps 1-4 of nine done in code (foundation, content seeding, authentication,
+module overview), smoke test closed, CI green on all of it. Steps 5-9 remain.
 
 ---
 
@@ -286,7 +289,8 @@ assertions. Commit: `ca9418c`.
 | 6 | Step 2 — Content Seeding: migrations for the 9 tables EXACTLY per OA-MVP-006 (uuid PKs, FKs, unique + check constraints), then seeders for Phase 0 Module 1 from the docs repo (4 lessons, 4 assignments, 1 survey, 3 survey questions per OA-MVP-004) | Seeded DB queryable; schema tests green | **COMPLETE** — Phase A migrations (commit `5d34bf2`) + Phase B seeders (commits `0050e87`, `bb0e36a`); `php artisan test` 42 passed, 115 assertions; two consecutive `db:seed` runs produced byte-identical row snapshots |
 | — | **Note (2026-07-21):** `modules.title`/`lessons.title` are stored bare (no "Module N —"/"Lesson N —" prefix); display composition of position + title happens in the presentation layer — Product Owner-ratified 2026-07-21 (see docs repo SPRINT-001 Sprint Log, "Task 6 Phase B — Process Deviation: Title Convention"). | — | — |
 | — | **Note (2026-07-21, retroactive):** `modules.purpose` was missing from Task 6's original scope — the column didn't exist in OA-MVP-006 and the seeder never populated it, even though OA-MVP-007's Module Overview response has required `purpose` since it was written. Gap surfaced implementing VS-002 Phase B; closed post-hoc via OA-MVP-006 v1.2.0, a follow-up migration, and a seeder backfill (see Task 7 row below). | — | — |
-| 7 | VS-002 — Module Overview per SPRINT-001 Story 2: domain rules (locked/available/complete; module status) unit-tested FIRST, then `GET /v1/modules/{id}/overview` + `GET /v1/learners/me/progress/{id}` per OA-MVP-007, then the screen | All 7 acceptance criteria of Story 2 + DoD (11 criteria, OA-MVP-010) | — |
+| 7 | VS-002 — Module Overview per SPRINT-001 Story 2: domain rules (locked/available/complete; module status) unit-tested FIRST, then `GET /v1/modules/{id}/overview` + `GET /v1/learners/me/progress/{id}` per OA-MVP-007, then the screen | All 7 acceptance criteria of Story 2 + DoD (11 criteria, OA-MVP-010) | **COMPLETE** — Phase A (domain rules) commits `09935c3`, `d0f8d52`; Phase B (schema gap fix + endpoints) commits `4d3af2a`, `e018aa5`, `55e4aa7`, `2a3afec`; Phase C (screen) commits `753e835`, `e51760e`. `php artisan test`: 64 passed, 158 assertions. Frontend `pnpm test`: 18 passed. CI green on both pushes (runs `29870712976`, `29871538137`). Product Owner browser-verified all acceptance criteria live (title, purpose, deliverable, four-lesson status states, disabled primary action) — VS-002 COMPLETE end-to-end. |
+| — | **Note (2026-07-21):** OA-MVP-007's Module Overview response returns a bare module `title` with no phase/position fields, so the frontend cannot compose the wireframe's "Phase 0 — Module 1: {title}" heading — tracked as backlog OA-BL-019 (docs repo `PRODUCT_BACKLOG.md`), not implemented (requires an OA-MVP-007 contract change). | — | — |
 
 Tasks 6 and 7 require no new decisions — their specs are complete in the docs
 repo. Anything not listed here is out of scope (CLAUDE.md §3).
