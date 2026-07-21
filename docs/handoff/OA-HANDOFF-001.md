@@ -258,6 +258,7 @@ Code and CI correctly pin 8.4. The server CLI runs 8.5.4. Options:
 | 3 | PMV-001 bootstrap fix + verification | Merged referencing OA-AUDIT-001 |
 | 4 | PMV-003 escalated → decision executed | PHP version aligned, documented |
 | 5 | Integration checkpoint: `make bootstrap` clean on fresh clone; full test suites; CI green on main | Product Owner approves closing Foundation |
+| — | **Note (2026-07-21):** `platform-foundation-v1` was already cut at commit `10e6506`, slightly ahead of this task, once the PMV-002 smoke test closed (Product Owner call — tags don't need to chase every subsequent commit). When Task 5 itself completes, cut a **new** tag (e.g. `platform-foundation-v1.1`, exact name TBD) to mark that later, more complete Foundation milestone. Do not move or force-push the existing tag. | — |
 | 6 | Step 2 — Content Seeding: migrations for the 8 tables EXACTLY per OA-MVP-006 (uuid PKs, FKs, unique + check constraints), then seeders for Phase 0 Module 1 from the docs repo (4 lessons, 4 assignments, 1 survey, 3 survey questions per OA-MVP-004) | Seeded DB queryable; schema tests green |
 | 7 | VS-002 — Module Overview per SPRINT-001 Story 2: domain rules (locked/available/complete; module status) unit-tested FIRST, then `GET /v1/modules/{id}/overview` + `GET /v1/learners/me/progress/{id}` per OA-MVP-007, then the screen | All 7 acceptance criteria of Story 2 + DoD (11 criteria, OA-MVP-010) |
 
