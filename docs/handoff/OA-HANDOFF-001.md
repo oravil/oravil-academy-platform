@@ -275,20 +275,25 @@ assertions. Commit: `ca9418c`.
 
 ## 3. Work order (strict sequence — no skipping)
 
-| # | Task | Gate to proceed |
-|---|---|---|
-| 0 | Session zero: re-verify [DONE-CLAIMED] items (tests, tag, CI) with command output | Report produced |
-| 1 | PMV-002 diagnosis D1-D5 → verified root cause | Root cause stated with evidence |
-| 2 | PMV-002 minimal fix + exit criteria met | Smoke test CLOSED |
-| 3 | PMV-001 bootstrap fix + verification | Merged referencing OA-AUDIT-001 |
-| 4 | PMV-003 escalated → decision executed | PHP version aligned, documented |
-| 5 | Integration checkpoint: `make bootstrap` clean on fresh clone; full test suites; CI green on main | Product Owner approves closing Foundation |
-| — | **Note (2026-07-21):** `platform-foundation-v1` was already cut at commit `10e6506`, slightly ahead of this task, once the PMV-002 smoke test closed (Product Owner call — tags don't need to chase every subsequent commit). When Task 5 itself completes, cut a **new** tag (e.g. `platform-foundation-v1.1`, exact name TBD) to mark that later, more complete Foundation milestone. Do not move or force-push the existing tag. | — |
-| 6 | Step 2 — Content Seeding: migrations for the 8 tables EXACTLY per OA-MVP-006 (uuid PKs, FKs, unique + check constraints), then seeders for Phase 0 Module 1 from the docs repo (4 lessons, 4 assignments, 1 survey, 3 survey questions per OA-MVP-004) | Seeded DB queryable; schema tests green |
-| 7 | VS-002 — Module Overview per SPRINT-001 Story 2: domain rules (locked/available/complete; module status) unit-tested FIRST, then `GET /v1/modules/{id}/overview` + `GET /v1/learners/me/progress/{id}` per OA-MVP-007, then the screen | All 7 acceptance criteria of Story 2 + DoD (11 criteria, OA-MVP-010) |
+| # | Task | Gate to proceed | Status |
+|---|---|---|---|
+| 0 | Session zero: re-verify [DONE-CLAIMED] items (tests, tag, CI) with command output | Report produced | **COMPLETE** — §1.3 |
+| 1 | PMV-002 diagnosis D1-D5 → verified root cause | Root cause stated with evidence | **COMPLETE** — S2 confirmed (code + reproduced runtime evidence) |
+| 2 | PMV-002 minimal fix + exit criteria met | Smoke test CLOSED | **COMPLETE** — FIXED-VERIFIED, Product Owner browser confirmation |
+| 3 | PMV-001 bootstrap fix + verification | Merged referencing OA-AUDIT-001 | **COMPLETE** — commits `5223b27`, `bb94283` |
+| 4 | PMV-003 escalated → decision executed | PHP version aligned, documented | **COMPLETE** — amended to 8.5 via ADR-0007, commit `ca9418c` |
+| 5 | Integration checkpoint: `make bootstrap` clean on fresh clone; full test suites; CI green on main | Product Owner approves closing Foundation | **COMPLETE** — commits `b8142ff`, `470489c`, `a346bda`; CI run `29864906625` success |
+| — | **Note (2026-07-21):** `platform-foundation-v1` was cut early at commit `10e6506`, once the PMV-002 smoke test closed. Task 5 has now completed in full: `platform-foundation-v1.1` was cut at commit `a346bda`, superseding it. | — | — |
+| 6 | Step 2 — Content Seeding: migrations for the 8 tables EXACTLY per OA-MVP-006 (uuid PKs, FKs, unique + check constraints), then seeders for Phase 0 Module 1 from the docs repo (4 lessons, 4 assignments, 1 survey, 3 survey questions per OA-MVP-004) | Seeded DB queryable; schema tests green | **NEXT** |
+| 7 | VS-002 — Module Overview per SPRINT-001 Story 2: domain rules (locked/available/complete; module status) unit-tested FIRST, then `GET /v1/modules/{id}/overview` + `GET /v1/learners/me/progress/{id}` per OA-MVP-007, then the screen | All 7 acceptance criteria of Story 2 + DoD (11 criteria, OA-MVP-010) | — |
 
 Tasks 6 and 7 require no new decisions — their specs are complete in the docs
 repo. Anything not listed here is out of scope (CLAUDE.md §3).
+
+**FOUNDATION CLOSED — 2026-07-21.** Tasks 0–5 all complete, gates satisfied,
+evidence recorded above and in §1–§2. Tag `platform-foundation-v1.1` (commit
+`a346bda`) marks this milestone. The work order now proceeds to Task 6
+(Content Seeding).
 
 ---
 
