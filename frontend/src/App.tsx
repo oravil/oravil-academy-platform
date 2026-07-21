@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './features/auth/AuthContext'
 import { LoginPage } from './features/auth/LoginPage'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
+import { ModuleOverviewPage } from './features/module-overview/ModuleOverviewPage'
 
 const queryClient = new QueryClient()
 
@@ -14,7 +15,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<div>Welcome!</div>} />
+              <Route path="/" element={<ModuleOverviewPage />} />
             </Route>
           </Routes>
         </AuthProvider>

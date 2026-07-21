@@ -1,0 +1,110 @@
+import { useQuery } from '@tanstack/react-query'
+import { CheckCircle2, Circle, Lock, type LucideIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  getLearnerProgress,
+  getModuleOverview,
+  isApiError,
+  type LearnerProgressResponse,
+  type LessonStatus,
+  type ModuleOverviewLessonResponse,
+  type ModuleOverviewResponse,
+} from '@/lib/api'
+import { CURRENT_MODULE_ID } from './constants'
+
+const STATUS_CONFIG: Record<LessonStatus, { icon: LucideIcon; className: string; label: string }> =
+  {
+    locked: { icon: Lock, className: 'text-muted-foreground', label: 'Locked' },
+    available: { icon: Circle, className: 'text-primary', label: 'Available' },
+    complete: { icon: CheckCircle2, className: 'text-green-600', label: 'Complete' },
+  }
+
+function LessonRow({ lesson }: { lesson: ModuleOverviewLessonResponse }) {
+  const { icon: Icon, className, label } = STATUS_CONFIG[lesson.status]
+
+  return (
+    <li className="flex items-center gap-3 rounded-md border p-3">
+      <Icon className={className} aria-hidden />
+      <span className="flex-1">
+        Lesson {lesson.position}: {lesson.title}
+      </span>
+      <span className={`text-sm font-medium ${className}`}>{label}</span>
+    </li>
+  )
+}
+
+// Primary action states per docs repo MVP_WIREFRAMES.md, Screen 1 — Module Overview.
+function primaryActionLabel(
+  overview: ModuleOverviewResponse,
+  progress: LearnerProgressResponse
+): string {
+  if (progress.module_status === 'complete') {
+    return 'Proceed to Module Complete'
+  }
+
+  if (progress.lessons_complete === 0) {
+    return 'Begin Lesson 1'
+  }
+
+  const currentLesson = overview.lessons.find(
+    (lesson) => lesson.lesson_id === progress.current_lesson_id
+  )
+  return currentLesson ? `Continue to Lesson ${currentLesson.position}` : 'Continue'
+}
+
+export function ModuleOverviewPage() {
+  const overviewQuery = useQuery({
+    queryKey: ['module-overview', CURRENT_MODULE_ID],
+    queryFn: () => getModuleOverview(CURRENT_MODULE_ID),
+    retry: false,
+  })
+
+  const progressQuery = useQuery({
+    queryKey: ['learner-progress', CURRENT_MODULE_ID],
+    queryFn: () => getLearnerProgress(CURRENT_MODULE_ID),
+    retry: false,
+  })
+
+  if (overviewQuery.isLoading || progressQuery.isLoading) {
+    return <div className="p-8">Loading…</div>
+  }
+
+  if (overviewQuery.isError || progressQuery.isError) {
+    const error = overviewQuery.error ?? progressQuery.error
+    const message = isApiError(error)
+      ? error.message
+      : 'Unable to load this module. Please try again.'
+    return <div className="p-8 text-red-600">{message}</div>
+  }
+
+  const overview = overviewQuery.data
+  const progress = progressQuery.data
+
+  if (!overview || !progress) {
+    return null
+  }
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-6 p-8">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-semibold">{overview.title}</h1>
+        <p className="text-muted-foreground">{overview.purpose}</p>
+      </div>
+
+      <div className="space-y-1 rounded-md border p-4">
+        <h2 className="text-sm font-medium">Deliverable</h2>
+        <p className="text-sm text-muted-foreground">{overview.deliverable_description}</p>
+      </div>
+
+      <ul className="space-y-2">
+        {overview.lessons.map((lesson) => (
+          <LessonRow key={lesson.lesson_id} lesson={lesson} />
+        ))}
+      </ul>
+
+      <Button className="w-full" disabled title="Lesson View is not available yet (VS-003).">
+        {primaryActionLabel(overview, progress)}
+      </Button>
+    </div>
+  )
+}
