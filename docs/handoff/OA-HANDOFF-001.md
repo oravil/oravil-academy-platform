@@ -75,8 +75,9 @@
 
 ### 1.4 Not built yet [PLANNED]
 
-- Content tables (8): `learning_paths`, `phases`, `modules`, `lessons`,
-  `assignments`, `submissions`, `surveys`, `survey_questions` — no migrations.
+- Content tables (9): `learning_paths`, `phases`, `modules`, `lessons`,
+  `assignments`, `assignment_submissions`, `surveys`, `survey_questions`,
+  `survey_responses` — no migrations.
 - Step 2 Content Seeding; VS-002 Module Overview; Steps 5-9 of OA-MVP-010.
 
 ### 1.5 Completion estimate
@@ -284,7 +285,7 @@ assertions. Commit: `ca9418c`.
 | 4 | PMV-003 escalated → decision executed | PHP version aligned, documented | **COMPLETE** — amended to 8.5 via ADR-0007, commit `ca9418c` |
 | 5 | Integration checkpoint: `make bootstrap` clean on fresh clone; full test suites; CI green on main | Product Owner approves closing Foundation | **COMPLETE** — commits `b8142ff`, `470489c`, `a346bda`; CI run `29864906625` success |
 | — | **Note (2026-07-21):** `platform-foundation-v1` was cut early at commit `10e6506`, once the PMV-002 smoke test closed. Task 5 has now completed in full: `platform-foundation-v1.1` was cut at commit `a346bda`, superseding it. | — | — |
-| 6 | Step 2 — Content Seeding: migrations for the 8 tables EXACTLY per OA-MVP-006 (uuid PKs, FKs, unique + check constraints), then seeders for Phase 0 Module 1 from the docs repo (4 lessons, 4 assignments, 1 survey, 3 survey questions per OA-MVP-004) | Seeded DB queryable; schema tests green | **NEXT** |
+| 6 | Step 2 — Content Seeding: migrations for the 9 tables EXACTLY per OA-MVP-006 (uuid PKs, FKs, unique + check constraints), then seeders for Phase 0 Module 1 from the docs repo (4 lessons, 4 assignments, 1 survey, 3 survey questions per OA-MVP-004) | Seeded DB queryable; schema tests green | **NEXT** |
 | 7 | VS-002 — Module Overview per SPRINT-001 Story 2: domain rules (locked/available/complete; module status) unit-tested FIRST, then `GET /v1/modules/{id}/overview` + `GET /v1/learners/me/progress/{id}` per OA-MVP-007, then the screen | All 7 acceptance criteria of Story 2 + DoD (11 criteria, OA-MVP-010) | — |
 
 Tasks 6 and 7 require no new decisions — their specs are complete in the docs
