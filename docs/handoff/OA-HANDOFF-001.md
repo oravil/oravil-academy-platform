@@ -239,12 +239,28 @@ Verification: temporarily break DB credentials → run → must exit non-zero wi
 the error; restore → run → completes. Commit:
 `fix(bootstrap): fail hard when migrate fails — OA-AUDIT-001 PMV-001`.
 
-### PMV-003 — Server CLI on PHP 8.5.4 vs approved 8.4 [OPEN — HUMAN DECISION]
+### PMV-003 — Server CLI on PHP 8.5.4 vs approved 8.4 [RESOLVED — 2026-07-21]
 
-Code and CI correctly pin 8.4. The server CLI runs 8.5.4. Options:
-(a) install/switch to 8.4 on the server (`update-alternatives`), or
-(b) amend the approved decision to 8.5 (docs first, then composer/CI).
-**The agent does not decide this. Ask the Product Owner, then execute.**
+Product Owner initially chose option (a) — pin server to 8.4 via
+`update-alternatives`. Execution found no PHP 8.4 package installable on
+this server's OS (Ubuntu 26.04 "resolute"): no apt candidate, and the
+`ondrej/php` PPA has no published package index for this release
+(confirmed `404 Not Found` on its `Release` file; the PPA's own
+description confirms it is being merged into `packages.sury.org/php` and
+will not serve new Ubuntu releases going forward). Building from source or
+forcing an older codename's packages onto a newer base OS were considered
+and rejected as disproportionate.
+
+Product Owner then chose option (b): amend the approved decision to 8.5.
+Docs-first per project convention: **ADR-0007** (docs repo) records the
+amendment. Code aligned to match: `composer.json` (`^8.4` → `^8.5`,
+`composer.lock` content-hash refreshed via `composer update --lock`, no
+dependency versions changed), CI's `setup-php` step (8.4 → 8.5), and
+`CLAUDE.md` §2. Server CLI already ran 8.5.4, so no server-side change was
+required once the decision was amended. Verified: `php -v` → 8.5.4;
+`php artisan test` against an isolated `oravil_academy_test` database
+(not the live dev DB, per the standing interim rule) → 11 passed, 52
+assertions. Commit: `ca9418c`.
 
 ---
 
@@ -281,8 +297,9 @@ repo. Anything not listed here is out of scope (CLAUDE.md §3).
 ## 5. Open questions for the Product Owner
 
 1. ~~PMV-003: pin server to PHP 8.4 or amend decision to 8.5?~~ **RESOLVED
-   2026-07-21:** pin to 8.4 via `update-alternatives`. Execution pending
-   (Task 4).
+   2026-07-21:** initial call was pin to 8.4; execution found 8.4 is not
+   apt-installable on this server's OS, so the decision was re-amended to
+   8.5 (ADR-0007). See PMV-003 in §2 for the full evidence chain.
 2. OA-MVP-006/007/010 statuses read "Draft — Pending Product Owner Approval"
    while functioning as approved references. Formally promote to Approved?
 3. ~~Confirm the browser URL used during smoke testing (needed for PMV-002
