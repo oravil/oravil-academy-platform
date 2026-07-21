@@ -49,14 +49,23 @@
 ### 1.3 Session zero verification results (2026-07-21)
 
 - "11 passed / 52 assertions" for `php artisan test` on the server —
-  **[PARTIALLY VERIFIED]**. Reproducible only when the shell env forces
-  `DB_CONNECTION=pgsql` against the live Postgres service (matching CI's
-  job-level `env:` override). The bare documented command
-  (`cd backend && php artisan test`, equivalent to `make test`) fails 10/11 on
-  this server: `phpunit.xml` hardcodes `DB_CONNECTION=sqlite` / `:memory:`,
-  and the `learners`/`sessions` migration uses Postgres-only defaults
-  (`gen_random_uuid()`, `now()`) that SQLite rejects. Backlogged; fix deferred
-  to work-order Task 5 (remove the hardcoded DB env from `phpunit.xml`).
+  originally **[PARTIALLY VERIFIED]** (reproducible only via manual env
+  override; the bare command failed 10/11 because `phpunit.xml` hardcoded
+  `DB_CONNECTION=sqlite`/`:memory:` against Postgres-only migrations).
+  **[RESOLVED 2026-07-21, Task 5]:** `phpunit.xml` now sets
+  `DB_CONNECTION=pgsql`, `DB_DATABASE=oravil_academy_test`,
+  `SESSION_DRIVER=database` explicitly (matching CI); `DB_HOST`/`DB_PORT`/
+  `DB_USERNAME`/`DB_PASSWORD` are deliberately left unset there so no
+  credentials are committed — they inherit from `.env` locally and from
+  CI's job-level `env:` block in CI. Verified: bare `cd backend && php
+  artisan test` and bare `make backend-test`, both in a fully clean shell
+  (`env -i`, zero exported vars) → 11 passed, 52 assertions; confirmed via
+  direct DB query that the run targeted `oravil_academy_test` (0 rows after,
+  as expected under `RefreshDatabase`'s per-test transaction rollback) and
+  left `oravil_academy` (dev DB, 1 learner row) untouched. **The standing
+  interim rule (no `RefreshDatabase`-driven suite against `oravil_academy`)
+  is retired as of this fix** — the documented commands are now safe to run
+  bare, unconditionally.
 - `git tag platform-foundation-v1` pushed — **[DISPROVEN]**. `git tag -l`
   (local) and `gh api repos/oravil/oravil-academy-platform/tags` (remote) both
   return empty. Tag will be cut at work-order Task 5, after the PMV-002 smoke
