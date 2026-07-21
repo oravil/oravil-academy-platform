@@ -1,5 +1,7 @@
 <?php
 
+use App\Application\LearningPath\Exceptions\LessonLockedException;
+use App\Application\LearningPath\Exceptions\LessonNotFoundException;
 use App\Application\LearningPath\Exceptions\ModuleNotFoundException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -68,6 +70,28 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message' => 'Module not found.',
                     ],
                 ], 404);
+            }
+        });
+
+        $exceptions->render(function (LessonNotFoundException $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'not_found',
+                        'message' => 'Lesson not found.',
+                    ],
+                ], 404);
+            }
+        });
+
+        $exceptions->render(function (LessonLockedException $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'forbidden',
+                        'message' => 'This lesson is locked.',
+                    ],
+                ], 403);
             }
         });
 
