@@ -1,5 +1,6 @@
 <?php
 
+use App\Application\LearningPath\Exceptions\ModuleNotFoundException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -56,6 +57,17 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message' => 'Forbidden.',
                     ],
                 ], 403);
+            }
+        });
+
+        $exceptions->render(function (ModuleNotFoundException $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'not_found',
+                        'message' => 'Module not found.',
+                    ],
+                ], 404);
             }
         });
 
