@@ -17,10 +17,12 @@ class DatabaseSeeder extends Seeder
     {
         // Learner::factory(10)->create();
 
-        Learner::factory()->create([
-            'display_name' => 'Test Learner',
-            'email' => 'test@example.com',
-            'enrolled_at' => now(),
-        ]);
+        Learner::firstOrCreate(
+            ['email' => 'test@example.com'],
+            Learner::factory()->raw([
+                'display_name' => 'Test Learner',
+                'enrolled_at' => now(),
+            ])
+        );
     }
 }
