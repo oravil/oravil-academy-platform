@@ -116,8 +116,9 @@ Error envelope (all endpoints): `{"error": {"code", "message", "fields?"}}`;
   diagnostic sequence are in the handoff. Start there. Nothing else proceeds
   until it is fixed and the smoke test closes.
 - Content tables (`learning_paths`, `phases`, `modules`, `lessons`,
-  `assignments`, `submissions`, `surveys`, `survey_questions`) DO NOT exist yet.
-  Step 2 (Content Seeding) and VS-002 (Module Overview) are the next slices
-  after the blocker closes.
+  `assignments`, `assignment_submissions`, `surveys`, `survey_questions`,
+  `survey_responses`) — 9 tables, created via migration in Task 6 Phase A and
+  seeded with Phase 0 Module 1 content in Task 6 Phase B. VS-002 (Module
+  Overview) is the next slice.
 - Definition of Done for every slice: the eleven criteria in OA-MVP-010
   (docs repo) — including CI proving behaviour, not just style.
