@@ -140,6 +140,14 @@ fi
 if [[ "$DOCKER_AVAILABLE" == "true" ]] && [[ $RETRIES -gt 0 ]]; then
   info "Running database migrations…"
   (cd backend && php artisan migrate --force --ansi) && success "Migrations complete"
+
+  # LOCAL DEVELOPMENT CONVENIENCE ONLY — NOT a production provisioning
+  # mechanism. Learners are provisioned manually (ADR-0005: no
+  # self-registration). This seeds exactly one throwaway "Test Learner"
+  # (test@example.com / password) so a fresh dev environment has something
+  # to log in with. Never rely on this seeder for real learner accounts.
+  info "Seeding local development test learner…"
+  (cd backend && php artisan db:seed --force --ansi) && success "Test learner seeded"
 fi
 
 # ── 7. Next steps ─────────────────────────────────────────────────────────────
