@@ -101,3 +101,39 @@ export function logout(): Promise<void> {
 export function getMe(): Promise<LearnerResponse> {
   return request<LearnerResponse>('/v1/auth/me')
 }
+
+export type LessonStatus = 'locked' | 'available' | 'complete'
+export type ModuleStatus = 'in_progress' | 'complete'
+
+export interface ModuleOverviewLessonResponse {
+  lesson_id: string
+  position: number
+  title: string
+  status: LessonStatus
+}
+
+export interface ModuleOverviewResponse {
+  module_id: string
+  title: string
+  purpose: string
+  deliverable_description: string
+  lessons: ModuleOverviewLessonResponse[]
+  module_status: ModuleStatus
+}
+
+export interface LearnerProgressResponse {
+  module_id: string
+  lessons_complete: number
+  lessons_total: number
+  current_lesson_id: string | null
+  module_status: ModuleStatus
+  survey_submitted: boolean
+}
+
+export function getModuleOverview(moduleId: string): Promise<ModuleOverviewResponse> {
+  return request<ModuleOverviewResponse>(`/v1/modules/${moduleId}/overview`)
+}
+
+export function getLearnerProgress(moduleId: string): Promise<LearnerProgressResponse> {
+  return request<LearnerProgressResponse>(`/v1/learners/me/progress/${moduleId}`)
+}
