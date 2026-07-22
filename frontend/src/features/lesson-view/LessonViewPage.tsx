@@ -27,9 +27,7 @@ const markdownComponents: Components = {
       <table className="w-full border-collapse text-sm">{children}</table>
     </div>
   ),
-  th: ({ children }) => (
-    <th className="border p-2 text-left font-medium">{children}</th>
-  ),
+  th: ({ children }) => <th className="border p-2 text-left font-medium">{children}</th>,
   td: ({ children }) => <td className="border p-2 align-top">{children}</td>,
 }
 

@@ -147,11 +147,7 @@ function PrimaryAction({
 
   if (progress.module_status === 'complete') {
     return (
-      <Button
-        className="w-full"
-        disabled
-        title="Module Complete is not available yet."
-      >
+      <Button className="w-full" disabled title="Module Complete is not available yet.">
         {label}
       </Button>
     )
