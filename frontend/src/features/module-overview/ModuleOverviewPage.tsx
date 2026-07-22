@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { CheckCircle2, Circle, Lock, type LucideIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
   getLearnerProgress,
@@ -19,18 +20,37 @@ const STATUS_CONFIG: Record<LessonStatus, { icon: LucideIcon; className: string;
     complete: { icon: CheckCircle2, className: 'text-green-600', label: 'Complete' },
   }
 
+// Locked lessons are not navigable from the UI (frontend gating layer, OA-MVP-010 Step 5);
+// available and complete lessons may be opened — a learner may reopen a completed lesson
+// to re-read it, per MVP_WIREFRAMES.md Navigation Behavior.
 function LessonRow({ lesson }: { lesson: ModuleOverviewLessonResponse }) {
   const { icon: Icon, className, label } = STATUS_CONFIG[lesson.status]
+  const isNavigable = lesson.status === 'available' || lesson.status === 'complete'
 
-  return (
-    <li className="flex items-center gap-3 rounded-md border p-3">
+  const content = (
+    <>
       <Icon className={className} aria-hidden />
       <span className="flex-1">
         Lesson {lesson.position}: {lesson.title}
       </span>
       <span className={`text-sm font-medium ${className}`}>{label}</span>
-    </li>
+    </>
   )
+
+  if (isNavigable) {
+    return (
+      <li>
+        <Link
+          to={`/lessons/${lesson.lesson_id}`}
+          className="flex items-center gap-3 rounded-md border p-3 hover:bg-accent"
+        >
+          {content}
+        </Link>
+      </li>
+    )
+  }
+
+  return <li className="flex items-center gap-3 rounded-md border p-3">{content}</li>
 }
 
 // Primary action states per docs repo MVP_WIREFRAMES.md, Screen 1 — Module Overview.
@@ -50,6 +70,13 @@ function primaryActionLabel(
     (lesson) => lesson.lesson_id === progress.current_lesson_id
   )
   return currentLesson ? `Continue to Lesson ${currentLesson.position}` : 'Continue'
+}
+
+// The only lesson a learner can move forward into is the one lesson the domain
+// rules mark 'available' (OA-MVP-005 Rules 3-4) — deriving from the lesson list
+// rather than progress.current_lesson_id avoids depending on that field being non-null.
+function nextLessonId(overview: ModuleOverviewResponse): string | null {
+  return overview.lessons.find((lesson) => lesson.status === 'available')?.lesson_id ?? null
 }
 
 export function ModuleOverviewPage() {
@@ -102,9 +129,47 @@ export function ModuleOverviewPage() {
         ))}
       </ul>
 
-      <Button className="w-full" disabled title="Lesson View is not available yet (VS-003).">
-        {primaryActionLabel(overview, progress)}
-      </Button>
+      <PrimaryAction overview={overview} progress={progress} />
     </div>
+  )
+}
+
+// Module Complete has no screen yet (OA-MVP-010 Step 7) — that state stays disabled.
+// Begin/Continue navigate to Lesson View now that VS-003 is live.
+function PrimaryAction({
+  overview,
+  progress,
+}: {
+  overview: ModuleOverviewResponse
+  progress: LearnerProgressResponse
+}) {
+  const label = primaryActionLabel(overview, progress)
+
+  if (progress.module_status === 'complete') {
+    return (
+      <Button
+        className="w-full"
+        disabled
+        title="Module Complete is not available yet."
+      >
+        {label}
+      </Button>
+    )
+  }
+
+  const targetLessonId = nextLessonId(overview)
+
+  if (!targetLessonId) {
+    return (
+      <Button className="w-full" disabled>
+        {label}
+      </Button>
+    )
+  }
+
+  return (
+    <Button asChild className="w-full">
+      <Link to={`/lessons/${targetLessonId}`}>{label}</Link>
+    </Button>
   )
 }

@@ -4,6 +4,7 @@ import { AuthProvider } from './features/auth/AuthContext'
 import { LoginPage } from './features/auth/LoginPage'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { ModuleOverviewPage } from './features/module-overview/ModuleOverviewPage'
+import { LessonViewPage } from './features/lesson-view/LessonViewPage'
 
 const queryClient = new QueryClient()
 
@@ -16,6 +17,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<ModuleOverviewPage />} />
+              <Route path="/lessons/:lessonId" element={<LessonViewPage />} />
             </Route>
           </Routes>
         </AuthProvider>

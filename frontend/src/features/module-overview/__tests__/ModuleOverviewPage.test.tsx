@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ModuleOverviewPage } from '../ModuleOverviewPage'
 
@@ -50,7 +51,9 @@ function renderPage() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={queryClient}>
-      <ModuleOverviewPage />
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <ModuleOverviewPage />
+      </MemoryRouter>
     </QueryClientProvider>
   )
 }
@@ -86,20 +89,41 @@ describe('ModuleOverviewPage', () => {
     expect(screen.getAllByText('Locked')).toHaveLength(3)
   })
 
-  it('shows "Begin Lesson 1" as the primary action on first access', async () => {
+  it('renders locked lesson rows as non-interactive and available/complete rows as links', async () => {
     getModuleOverview.mockResolvedValue(overviewFixture)
     getLearnerProgress.mockResolvedValue(progressFixture)
 
     renderPage()
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /begin lesson 1/i })).toBeInTheDocument()
+      expect(screen.getByText('The Digital Marketing Landscape')).toBeInTheDocument()
     })
 
-    expect(screen.getByRole('button', { name: /begin lesson 1/i })).toBeDisabled()
+    expect(
+      screen.getByRole('link', { name: /lesson 1: what is digital marketing/i })
+    ).toHaveAttribute('href', '/lessons/lesson-1')
+    expect(
+      screen.queryByRole('link', { name: /lesson 2: digital vs traditional marketing/i })
+    ).not.toBeInTheDocument()
   })
 
-  it('shows "Continue to Lesson N" once a lesson has been completed but the module is not finished', async () => {
+  it('navigates to Lesson 1 via the primary action on first access', async () => {
+    getModuleOverview.mockResolvedValue(overviewFixture)
+    getLearnerProgress.mockResolvedValue(progressFixture)
+
+    renderPage()
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: /begin lesson 1/i })).toBeInTheDocument()
+    })
+
+    expect(screen.getByRole('link', { name: /begin lesson 1/i })).toHaveAttribute(
+      'href',
+      '/lessons/lesson-1'
+    )
+  })
+
+  it('navigates to the current lesson via "Continue to Lesson N" once a lesson has been completed', async () => {
     getModuleOverview.mockResolvedValue({
       ...overviewFixture,
       lessons: [
@@ -118,8 +142,16 @@ describe('ModuleOverviewPage', () => {
     renderPage()
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /continue to lesson 2/i })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: /continue to lesson 2/i })).toBeInTheDocument()
     })
+
+    expect(screen.getByRole('link', { name: /continue to lesson 2/i })).toHaveAttribute(
+      'href',
+      '/lessons/lesson-2'
+    )
+    expect(
+      screen.getByRole('link', { name: /lesson 1: what is digital marketing/i })
+    ).toHaveAttribute('href', '/lessons/lesson-1')
   })
 
   it('shows "Proceed to Module Complete" once the module status is complete', async () => {

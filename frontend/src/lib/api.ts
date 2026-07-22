@@ -137,3 +137,24 @@ export function getModuleOverview(moduleId: string): Promise<ModuleOverviewRespo
 export function getLearnerProgress(moduleId: string): Promise<LearnerProgressResponse> {
   return request<LearnerProgressResponse>(`/v1/learners/me/progress/${moduleId}`)
 }
+
+export interface AssignmentDetailResponse {
+  assignment_id: string
+  deliverable_name: string
+  prompt: string
+  minimum_word_count: number | null
+}
+
+export interface LessonResponse {
+  lesson_id: string
+  module_id: string
+  position: number
+  title: string
+  estimated_reading_minutes: number | null
+  content: string
+  assignment: AssignmentDetailResponse
+}
+
+export function getLesson(lessonId: string): Promise<LessonResponse> {
+  return request<LessonResponse>(`/v1/lessons/${lessonId}`)
+}
