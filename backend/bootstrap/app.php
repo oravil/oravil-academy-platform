@@ -1,5 +1,8 @@
 <?php
 
+use App\Application\Assignment\Exceptions\AssignmentAlreadySubmittedException;
+use App\Application\Assignment\Exceptions\AssignmentNotFoundException;
+use App\Application\Assignment\Exceptions\AssignmentNotUnlockedException;
 use App\Application\LearningPath\Exceptions\LessonLockedException;
 use App\Application\LearningPath\Exceptions\LessonNotFoundException;
 use App\Application\LearningPath\Exceptions\ModuleNotFoundException;
@@ -90,6 +93,39 @@ return Application::configure(basePath: dirname(__DIR__))
                     'error' => [
                         'code' => 'forbidden',
                         'message' => 'This lesson is locked.',
+                    ],
+                ], 403);
+            }
+        });
+
+        $exceptions->render(function (AssignmentNotFoundException $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'not_found',
+                        'message' => 'Assignment not found.',
+                    ],
+                ], 404);
+            }
+        });
+
+        $exceptions->render(function (AssignmentNotUnlockedException $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'forbidden',
+                        'message' => 'This assignment is not yet unlocked.',
+                    ],
+                ], 403);
+            }
+        });
+
+        $exceptions->render(function (AssignmentAlreadySubmittedException $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'forbidden',
+                        'message' => 'This assignment has already been submitted.',
                     ],
                 ], 403);
             }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Assignment\AssignmentSubmissionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MeController;
@@ -21,4 +22,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/modules/{module_id}/overview', ModuleOverviewController::class);
     Route::get('/learners/me/progress/{module_id}', LearnerProgressController::class);
     Route::get('/lessons/{lesson_id}', LessonController::class);
+    Route::post('/assignments/{assignment_id}/submissions', AssignmentSubmissionController::class);
 });
