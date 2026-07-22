@@ -75,16 +75,17 @@
 
 ### 1.4 Not built yet [PLANNED]
 
-- VS-003 Lesson View (Step 5 of OA-MVP-010) — next up.
-- Steps 6-9 of OA-MVP-010 (Assignment Submission, Module Completion, Survey,
-  End-to-End Verification) remain after that.
-- (Content tables (9), Step 2 Content Seeding, and Step 4 Module Overview are
-  now COMPLETE — see §3 Tasks 6-7.)
+- VS-004 Assignment Submission (Step 6 of OA-MVP-010) — next up.
+- Steps 7-9 of OA-MVP-010 (Module Completion, Survey, End-to-End
+  Verification) remain after that.
+- (Content tables (9), Step 2 Content Seeding, Step 4 Module Overview, and
+  Step 5 Lesson View are now COMPLETE — see §3 Tasks 6-8.)
 
 ### 1.5 Completion estimate
 
-Steps 1-4 of nine done in code (foundation, content seeding, authentication,
-module overview), smoke test closed, CI green on all of it. Steps 5-9 remain.
+Steps 1-5 of nine done in code (foundation, content seeding, authentication,
+module overview, lesson view), smoke test closed, CI green on all of it.
+Steps 6-9 remain.
 
 ---
 
@@ -291,9 +292,12 @@ assertions. Commit: `ca9418c`.
 | — | **Note (2026-07-21, retroactive):** `modules.purpose` was missing from Task 6's original scope — the column didn't exist in OA-MVP-006 and the seeder never populated it, even though OA-MVP-007's Module Overview response has required `purpose` since it was written. Gap surfaced implementing VS-002 Phase B; closed post-hoc via OA-MVP-006 v1.2.0, a follow-up migration, and a seeder backfill (see Task 7 row below). | — | — |
 | 7 | VS-002 — Module Overview per SPRINT-001 Story 2: domain rules (locked/available/complete; module status) unit-tested FIRST, then `GET /v1/modules/{id}/overview` + `GET /v1/learners/me/progress/{id}` per OA-MVP-007, then the screen | All 7 acceptance criteria of Story 2 + DoD (11 criteria, OA-MVP-010) | **COMPLETE** — Phase A (domain rules) commits `09935c3`, `d0f8d52`; Phase B (schema gap fix + endpoints) commits `4d3af2a`, `e018aa5`, `55e4aa7`, `2a3afec`; Phase C (screen) commits `753e835`, `e51760e`. `php artisan test`: 64 passed, 158 assertions. Frontend `pnpm test`: 18 passed. CI green on both pushes (runs `29870712976`, `29871538137`). Product Owner browser-verified all acceptance criteria live (title, purpose, deliverable, four-lesson status states, disabled primary action) — VS-002 COMPLETE end-to-end. |
 | — | **Note (2026-07-21):** OA-MVP-007's Module Overview response returns a bare module `title` with no phase/position fields, so the frontend cannot compose the wireframe's "Phase 0 — Module 1: {title}" heading — tracked as backlog OA-BL-019 (docs repo `PRODUCT_BACKLOG.md`), not implemented (requires an OA-MVP-007 contract change). | — | — |
+| 8 | VS-003 — Lesson View (Step 5 of OA-MVP-010): `GET /v1/lessons/{lesson_id}` (already implemented ahead of schedule in Task 7 Phase B), then the screen — route, Markdown content rendering, third (frontend) gating layer, assignment block, loading/error states | All 6 declared Phase C requirements + DoD (OA-MVP-010) | **COMPLETE** — Phase C commits `6af2062` (feature), `0c02849` (Prettier formatting fix after a CI catch). `pnpm test`: 23 passed (5 files). `php artisan test`: 69/70 passed, 1 flaky timing assertion re-verified passing in isolation (1.79s) — no backend files touched this phase. `pnpm lint`: 0 errors. CI green on both pushes (runs `29955892605` — failed on Prettier, fixed same session; `29956024734` — full green, Backend Quality + Frontend Quality). Product Owner browser-verified all three checks live (GFM tables render, forced-browse to a locked lesson shows the graceful locked screen with a way back, session state survives refresh on the lesson route) — VS-003 COMPLETE end-to-end. |
+| — | **Note (2026-07-22):** Markdown rendering required a new dependency (`react-markdown` + `remark-gfm`, GFM needed for pipe tables in seeded content) — asked first per CLAUDE.md §4.6, Product Owner approved. Installing it briefly OOM-killed under this server's ~1.9GB memory margin; resolved with a temporary swapfile (created and torn down within the same session, per Product Owner's choice) rather than touching the running dev stack or unrelated processes. Tracked as backlog OA-BL-024 (docs repo `PRODUCT_BACKLOG.md`). | — | — |
+| — | **Note (2026-07-22):** MVP_WIREFRAMES.md's Screen 2 reading-progress indicator was not one of the six requirements explicitly declared for this slice — deliberately not implemented, tracked as backlog OA-BL-023 (docs repo `PRODUCT_BACKLOG.md`). | — | — |
 
-Tasks 6 and 7 require no new decisions — their specs are complete in the docs
-repo. Anything not listed here is out of scope (CLAUDE.md §3).
+Tasks 6, 7, and 8 require no new decisions — their specs are complete in the
+docs repo. Anything not listed here is out of scope (CLAUDE.md §3).
 
 **FOUNDATION CLOSED — 2026-07-21.** Tasks 0–5 all complete, gates satisfied,
 evidence recorded above and in §1–§2. Tag `platform-foundation-v1.1` (commit
