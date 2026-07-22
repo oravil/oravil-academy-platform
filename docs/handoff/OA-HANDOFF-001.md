@@ -75,18 +75,17 @@
 
 ### 1.4 Not built yet [PLANNED]
 
-- VS-005 Module Completion (Step 7 of OA-MVP-010) — next up.
-- Step 8 Survey and Step 9 End-to-End Verification of OA-MVP-010 remain
-  after that.
+- VS-006 Post-Module Survey (Step 8 of OA-MVP-010) — next up, the final screen.
+- Step 9 End-to-End Verification of OA-MVP-010 remains after that.
 - (Content tables (9), Step 2 Content Seeding, Step 4 Module Overview,
-  Step 5 Lesson View, and Step 6 Assignment Submission are now COMPLETE —
-  see §3 Tasks 6-9.)
+  Step 5 Lesson View, Step 6 Assignment Submission, and Step 7 Module
+  Completion are now COMPLETE — see §3 Tasks 6-10.)
 
 ### 1.5 Completion estimate
 
-Steps 1-6 of nine done in code (foundation, content seeding, authentication,
-module overview, lesson view, assignment submission), smoke test closed, CI
-green on all of it. Steps 7-9 remain.
+Steps 1-7 of nine done in code (foundation, content seeding, authentication,
+module overview, lesson view, assignment submission, module completion),
+smoke test closed, CI green on all of it. Steps 8-9 remain.
 
 ---
 
@@ -298,9 +297,12 @@ assertions. Commit: `ca9418c`.
 | — | **Note (2026-07-22):** MVP_WIREFRAMES.md's Screen 2 reading-progress indicator was not one of the six requirements explicitly declared for this slice — deliberately not implemented, tracked as backlog OA-BL-023 (docs repo `PRODUCT_BACKLOG.md`). | — | — |
 | 9 | VS-004 — Assignment Submission (Step 6 of OA-MVP-010): the write path — `POST /v1/assignments/{assignment_id}/submissions` per OA-MVP-007 (Phase B), then the submission screen per OA-MVP-004 Screen 3 (Phase C) | Full unlock cycle proven through the real write path (no seeded submission rows), complete rejection matrix, sequence-integrity end-state, screen live with graceful error states | **COMPLETE** — Phase B commit `115f6f0` (endpoint: `SubmitAssignment` use case, `AssignmentRepository`/`DatabaseAssignmentRepository`, three new domain exceptions, `SubmitAssignmentRequest`, `AssignmentSubmissionController`). Phase C commits `a90b85b` (screen: route, `AssignmentSubmissionPage`, live "Proceed to Assignment Submission" link on Lesson View, `Textarea` primitive) and `31800b0` (Prettier fix). `php artisan test`: 80 passed. `pnpm test`: 32 passed (6 files). `pnpm lint`/`pint`/`phpstan`: clean. CI green at HEAD (`31800b0`) — run `29959351332`, Backend Quality + Frontend Quality both success. Product Owner browser-verified the full four-lesson chain live through the real write path: all four lessons reached Complete, the primary action progressed to its third state ("Proceed to Module Complete"), empty-content rejection held client-side, and the one-shot (no-resubmission) rule held — VS-004 COMPLETE end-to-end. |
 | — | **Note (2026-07-22):** the live dev DB now holds a fully-completed Module 1 (all 4 lessons submitted) for the seeded Test Learner, from the Product Owner's own VS-004 browser verification. Flagged, not acted on: anyone testing a "fresh state" flow (e.g. VS-002/VS-003's locked-lesson or in-progress states) against this DB will need a second learner or a submissions cleanup — the seeded Test Learner no longer represents a fresh enrollment. |
+| 10 | VS-005 — Module Completion (Step 7 of OA-MVP-010): `GET /v1/modules/{module_id}/completion` per OA-MVP-007 (Phase B, pure composition — zero new domain logic, OA-MVP-005 Rules 5-6 already enforced by `ModuleStatusRule`), then the Module Complete screen per OA-MVP-004 Screen 4 (Phase C) | 200 exact envelope for a completed learner, 403 for an incomplete module (fresh factory learner), screen live with the disabled post-survey action correctly NOT redirecting | **COMPLETE** — Phase B commit `0523e08` (`GetModuleCompletion` composing existing `ModuleRepository`/`ModuleProgressService`/`SurveyRepository`; no new repository, no new binding; `ModuleNotCompleteException` → 403). Phase C commit `bb81739` (`ModuleCompletePage`, Module Overview's primary action activated to a live link — third activation of that pattern). `php artisan test`: 86 passed. `pnpm test`: 37 passed (7 files). Prettier's check run locally before this push, closing the recurring CI-catch gap from Tasks 8-9. CI green at HEAD (`bb81739`) — run `29960905061`, both jobs success on the first push, no follow-up fix needed. Product Owner browser-verified live navigation from Module Overview, all four lessons shown Complete, deliverable reminder, and the survey action correctly disabled with its tooltip rather than redirecting — VS-005 COMPLETE end-to-end. |
+| — | **Note (2026-07-22):** judgment call on the Module Complete screen's primary action reversed from the VS-004 precedent — Product Owner's reasoning: VS-004's redirect-to-Overview was forced (no true destination existed yet for a mid-flow waypoint); the Completion screen is a terminal destination the learner has already reached, so a disabled action with a tooltip ("arrives in VS-006") is the honest affordance, matching VS-002's "Begin Lesson 1" pattern — redirecting backward off an achievement screen was rejected as negative motion. VS-006 activates this button as its fourth instance of the disable-then-activate pattern. |
+| — | **Note (2026-07-22):** Husky pre-commit hook does not currently run Prettier's check — caught manually before this push (and the two before it required a CI-caught follow-up fix). Tracked for a small follow-up commit in VS-006's batch: add the Prettier check to the pre-commit hook so this is enforced automatically. |
 
-Tasks 6, 7, 8, and 9 require no new decisions — their specs are complete in
-the docs repo. Anything not listed here is out of scope (CLAUDE.md §3).
+Tasks 6, 7, 8, 9, and 10 require no new decisions — their specs are complete
+in the docs repo. Anything not listed here is out of scope (CLAUDE.md §3).
 
 **FOUNDATION CLOSED — 2026-07-21.** Tasks 0–5 all complete, gates satisfied,
 evidence recorded above and in §1–§2. Tag `platform-foundation-v1.1` (commit
