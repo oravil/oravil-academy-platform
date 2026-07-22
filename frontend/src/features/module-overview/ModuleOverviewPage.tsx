@@ -134,8 +134,8 @@ export function ModuleOverviewPage() {
   )
 }
 
-// Module Complete has no screen yet (OA-MVP-010 Step 7) — that state stays disabled.
-// Begin/Continue navigate to Lesson View now that VS-003 is live.
+// Begin/Continue navigate to Lesson View (VS-003); Module Complete navigates
+// to the Module Complete screen (VS-005) once the module status is complete.
 function PrimaryAction({
   overview,
   progress,
@@ -147,8 +147,8 @@ function PrimaryAction({
 
   if (progress.module_status === 'complete') {
     return (
-      <Button className="w-full" disabled title="Module Complete is not available yet.">
-        {label}
+      <Button asChild className="w-full">
+        <Link to={`/modules/${overview.module_id}/completion`}>{label}</Link>
       </Button>
     )
   }

@@ -6,6 +6,7 @@ import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { ModuleOverviewPage } from './features/module-overview/ModuleOverviewPage'
 import { LessonViewPage } from './features/lesson-view/LessonViewPage'
 import { AssignmentSubmissionPage } from './features/assignment-submission/AssignmentSubmissionPage'
+import { ModuleCompletePage } from './features/module-completion/ModuleCompletePage'
 
 const queryClient = new QueryClient()
 
@@ -20,6 +21,7 @@ function App() {
               <Route path="/" element={<ModuleOverviewPage />} />
               <Route path="/lessons/:lessonId" element={<LessonViewPage />} />
               <Route path="/lessons/:lessonId/assignment" element={<AssignmentSubmissionPage />} />
+              <Route path="/modules/:moduleId/completion" element={<ModuleCompletePage />} />
             </Route>
           </Routes>
         </AuthProvider>

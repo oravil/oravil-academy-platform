@@ -154,7 +154,7 @@ describe('ModuleOverviewPage', () => {
     ).toHaveAttribute('href', '/lessons/lesson-1')
   })
 
-  it('shows "Proceed to Module Complete" once the module status is complete', async () => {
+  it('links to the Module Complete screen once the module status is complete', async () => {
     getModuleOverview.mockResolvedValue({
       ...overviewFixture,
       lessons: overviewFixture.lessons.map((lesson) => ({ ...lesson, status: 'complete' })),
@@ -170,10 +170,13 @@ describe('ModuleOverviewPage', () => {
     renderPage()
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /proceed to module complete/i })
-      ).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: /proceed to module complete/i })).toBeInTheDocument()
     })
+
+    expect(screen.getByRole('link', { name: /proceed to module complete/i })).toHaveAttribute(
+      'href',
+      `/modules/${overviewFixture.module_id}/completion`
+    )
   })
 
   it('shows the standard error envelope message when the overview request fails', async () => {

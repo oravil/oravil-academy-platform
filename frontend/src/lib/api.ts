@@ -175,3 +175,21 @@ export function submitAssignment(
     body: JSON.stringify({ content }),
   })
 }
+
+export interface CompletedLessonResponse {
+  lesson_id: string
+  position: number
+  title: string
+}
+
+export interface ModuleCompletionResponse {
+  module_id: string
+  title: string
+  deliverable_description: string | null
+  completed_lessons: CompletedLessonResponse[]
+  survey_submitted: boolean
+}
+
+export function getModuleCompletion(moduleId: string): Promise<ModuleCompletionResponse> {
+  return request<ModuleCompletionResponse>(`/v1/modules/${moduleId}/completion`)
+}
