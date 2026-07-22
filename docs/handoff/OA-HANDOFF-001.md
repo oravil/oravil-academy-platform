@@ -75,17 +75,18 @@
 
 ### 1.4 Not built yet [PLANNED]
 
-- VS-004 Assignment Submission (Step 6 of OA-MVP-010) — next up.
-- Steps 7-9 of OA-MVP-010 (Module Completion, Survey, End-to-End
-  Verification) remain after that.
-- (Content tables (9), Step 2 Content Seeding, Step 4 Module Overview, and
-  Step 5 Lesson View are now COMPLETE — see §3 Tasks 6-8.)
+- VS-005 Module Completion (Step 7 of OA-MVP-010) — next up.
+- Step 8 Survey and Step 9 End-to-End Verification of OA-MVP-010 remain
+  after that.
+- (Content tables (9), Step 2 Content Seeding, Step 4 Module Overview,
+  Step 5 Lesson View, and Step 6 Assignment Submission are now COMPLETE —
+  see §3 Tasks 6-9.)
 
 ### 1.5 Completion estimate
 
-Steps 1-5 of nine done in code (foundation, content seeding, authentication,
-module overview, lesson view), smoke test closed, CI green on all of it.
-Steps 6-9 remain.
+Steps 1-6 of nine done in code (foundation, content seeding, authentication,
+module overview, lesson view, assignment submission), smoke test closed, CI
+green on all of it. Steps 7-9 remain.
 
 ---
 
@@ -295,9 +296,11 @@ assertions. Commit: `ca9418c`.
 | 8 | VS-003 — Lesson View (Step 5 of OA-MVP-010): `GET /v1/lessons/{lesson_id}` (already implemented ahead of schedule in Task 7 Phase B), then the screen — route, Markdown content rendering, third (frontend) gating layer, assignment block, loading/error states | All 6 declared Phase C requirements + DoD (OA-MVP-010) | **COMPLETE** — Phase C commits `6af2062` (feature), `0c02849` (Prettier formatting fix after a CI catch). `pnpm test`: 23 passed (5 files). `php artisan test`: 69/70 passed, 1 flaky timing assertion re-verified passing in isolation (1.79s) — no backend files touched this phase. `pnpm lint`: 0 errors. CI green on both pushes (runs `29955892605` — failed on Prettier, fixed same session; `29956024734` — full green, Backend Quality + Frontend Quality). Product Owner browser-verified all three checks live (GFM tables render, forced-browse to a locked lesson shows the graceful locked screen with a way back, session state survives refresh on the lesson route) — VS-003 COMPLETE end-to-end. |
 | — | **Note (2026-07-22):** Markdown rendering required a new dependency (`react-markdown` + `remark-gfm`, GFM needed for pipe tables in seeded content) — asked first per CLAUDE.md §4.6, Product Owner approved. Installing it briefly OOM-killed under this server's ~1.9GB memory margin; resolved with a temporary swapfile (created and torn down within the same session, per Product Owner's choice) rather than touching the running dev stack or unrelated processes. Tracked as backlog OA-BL-024 (docs repo `PRODUCT_BACKLOG.md`). | — | — |
 | — | **Note (2026-07-22):** MVP_WIREFRAMES.md's Screen 2 reading-progress indicator was not one of the six requirements explicitly declared for this slice — deliberately not implemented, tracked as backlog OA-BL-023 (docs repo `PRODUCT_BACKLOG.md`). | — | — |
+| 9 | VS-004 — Assignment Submission (Step 6 of OA-MVP-010): the write path — `POST /v1/assignments/{assignment_id}/submissions` per OA-MVP-007 (Phase B), then the submission screen per OA-MVP-004 Screen 3 (Phase C) | Full unlock cycle proven through the real write path (no seeded submission rows), complete rejection matrix, sequence-integrity end-state, screen live with graceful error states | **COMPLETE** — Phase B commit `115f6f0` (endpoint: `SubmitAssignment` use case, `AssignmentRepository`/`DatabaseAssignmentRepository`, three new domain exceptions, `SubmitAssignmentRequest`, `AssignmentSubmissionController`). Phase C commits `a90b85b` (screen: route, `AssignmentSubmissionPage`, live "Proceed to Assignment Submission" link on Lesson View, `Textarea` primitive) and `31800b0` (Prettier fix). `php artisan test`: 80 passed. `pnpm test`: 32 passed (6 files). `pnpm lint`/`pint`/`phpstan`: clean. CI green at HEAD (`31800b0`) — run `29959351332`, Backend Quality + Frontend Quality both success. Product Owner browser-verified the full four-lesson chain live through the real write path: all four lessons reached Complete, the primary action progressed to its third state ("Proceed to Module Complete"), empty-content rejection held client-side, and the one-shot (no-resubmission) rule held — VS-004 COMPLETE end-to-end. |
+| — | **Note (2026-07-22):** the live dev DB now holds a fully-completed Module 1 (all 4 lessons submitted) for the seeded Test Learner, from the Product Owner's own VS-004 browser verification. Flagged, not acted on: anyone testing a "fresh state" flow (e.g. VS-002/VS-003's locked-lesson or in-progress states) against this DB will need a second learner or a submissions cleanup — the seeded Test Learner no longer represents a fresh enrollment. |
 
-Tasks 6, 7, and 8 require no new decisions — their specs are complete in the
-docs repo. Anything not listed here is out of scope (CLAUDE.md §3).
+Tasks 6, 7, 8, and 9 require no new decisions — their specs are complete in
+the docs repo. Anything not listed here is out of scope (CLAUDE.md §3).
 
 **FOUNDATION CLOSED — 2026-07-21.** Tasks 0–5 all complete, gates satisfied,
 evidence recorded above and in §1–§2. Tag `platform-foundation-v1.1` (commit
