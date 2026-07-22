@@ -158,3 +158,20 @@ export interface LessonResponse {
 export function getLesson(lessonId: string): Promise<LessonResponse> {
   return request<LessonResponse>(`/v1/lessons/${lessonId}`)
 }
+
+export interface SubmissionResponse {
+  submission_id: string
+  assignment_id: string
+  status: string
+  submitted_at: string
+}
+
+export function submitAssignment(
+  assignmentId: string,
+  content: string
+): Promise<SubmissionResponse> {
+  return request<SubmissionResponse>(`/v1/assignments/${assignmentId}/submissions`, {
+    method: 'POST',
+    body: JSON.stringify({ content }),
+  })
+}

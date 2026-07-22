@@ -77,8 +77,9 @@ describe('LessonViewPage', () => {
     ).toBeInTheDocument()
     expect(screen.getByText(lessonFixture.assignment.prompt)).toBeInTheDocument()
 
-    const submitButton = screen.getByRole('button', { name: /proceed to assignment submission/i })
-    expect(submitButton).toBeDisabled()
+    expect(
+      screen.getByRole('link', { name: /proceed to assignment submission/i })
+    ).toHaveAttribute('href', '/lessons/lesson-1/assignment')
   })
 
   it('shows a locked state with a way back to the Overview when the lesson is locked', async () => {

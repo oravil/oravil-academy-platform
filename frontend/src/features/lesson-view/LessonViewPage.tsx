@@ -109,12 +109,10 @@ export function LessonViewPage() {
       <div className="space-y-3 rounded-md border p-4">
         <h2 className="text-sm font-medium">Assignment: {lesson.assignment.deliverable_name}</h2>
         <p className="text-sm text-muted-foreground">{lesson.assignment.prompt}</p>
-        <Button
-          className="w-full"
-          disabled
-          title="Assignment submission is not available yet (VS-004)."
-        >
-          Proceed to Assignment Submission
+        <Button asChild className="w-full">
+          <Link to={`/lessons/${lesson.lesson_id}/assignment`}>
+            Proceed to Assignment Submission
+          </Link>
         </Button>
       </div>
     </div>
