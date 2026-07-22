@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\MeController;
 use App\Http\Controllers\LearningPath\LessonController;
 use App\Http\Controllers\LearningPath\ModuleOverviewController;
 use App\Http\Controllers\Progress\LearnerProgressController;
+use App\Http\Controllers\Progress\ModuleCompletionController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -23,4 +24,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/learners/me/progress/{module_id}', LearnerProgressController::class);
     Route::get('/lessons/{lesson_id}', LessonController::class);
     Route::post('/assignments/{assignment_id}/submissions', AssignmentSubmissionController::class);
+    Route::get('/modules/{module_id}/completion', ModuleCompletionController::class);
 });

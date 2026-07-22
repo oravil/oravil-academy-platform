@@ -6,6 +6,7 @@ use App\Application\Assignment\Exceptions\AssignmentNotUnlockedException;
 use App\Application\LearningPath\Exceptions\LessonLockedException;
 use App\Application\LearningPath\Exceptions\LessonNotFoundException;
 use App\Application\LearningPath\Exceptions\ModuleNotFoundException;
+use App\Application\Progress\Exceptions\ModuleNotCompleteException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -126,6 +127,17 @@ return Application::configure(basePath: dirname(__DIR__))
                     'error' => [
                         'code' => 'forbidden',
                         'message' => 'This assignment has already been submitted.',
+                    ],
+                ], 403);
+            }
+        });
+
+        $exceptions->render(function (ModuleNotCompleteException $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'forbidden',
+                        'message' => 'This module is not yet complete.',
                     ],
                 ], 403);
             }
