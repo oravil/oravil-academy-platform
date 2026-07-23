@@ -29,13 +29,23 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+
+        // Guests on /v1/* API routes receive the 401 JSON error contract instead
+        // of a redirect; the redirect only applies to non-API requests.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('v1/*') ? null : route('login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (HttpException $exception, Request $request) {
+        // Every /v1/* request is an API request by contract and must receive the
+        // JSON error contract, even when the client sends no Accept: application/json header.
+        $isApiRequest = fn (Request $request): bool => $request->is('v1/*') || $request->expectsJson();
+
+        $exceptions->shouldRenderJsonWhen($isApiRequest);
+
+        $exceptions->render(function (HttpException $exception, Request $request) use ($isApiRequest) {
             if (
                 $exception->getStatusCode() === 419
                 && $exception->getPrevious() instanceof TokenMismatchException
-                && $request->expectsJson()
+                && $isApiRequest($request)
             ) {
                 return response()->json([
                     'error' => [
@@ -46,8 +56,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (AuthenticationException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (AuthenticationException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 return response()->json([
                     'error' => [
                         'code' => 'unauthenticated',
@@ -57,8 +67,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (AuthorizationException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (AuthorizationException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 return response()->json([
                     'error' => [
                         'code' => 'forbidden',
@@ -68,8 +78,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (ModuleNotFoundException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (ModuleNotFoundException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 return response()->json([
                     'error' => [
                         'code' => 'not_found',
@@ -79,8 +89,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (LessonNotFoundException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (LessonNotFoundException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 return response()->json([
                     'error' => [
                         'code' => 'not_found',
@@ -90,8 +100,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (LessonLockedException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (LessonLockedException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 return response()->json([
                     'error' => [
                         'code' => 'forbidden',
@@ -101,8 +111,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (AssignmentNotFoundException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (AssignmentNotFoundException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 return response()->json([
                     'error' => [
                         'code' => 'not_found',
@@ -112,8 +122,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (AssignmentNotUnlockedException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (AssignmentNotUnlockedException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 return response()->json([
                     'error' => [
                         'code' => 'forbidden',
@@ -123,8 +133,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (AssignmentAlreadySubmittedException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (AssignmentAlreadySubmittedException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 return response()->json([
                     'error' => [
                         'code' => 'forbidden',
@@ -134,8 +144,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (ModuleNotCompleteException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (ModuleNotCompleteException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 return response()->json([
                     'error' => [
                         'code' => 'forbidden',
@@ -145,8 +155,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (SurveyNotFoundException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (SurveyNotFoundException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 return response()->json([
                     'error' => [
                         'code' => 'not_found',
@@ -156,8 +166,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (SurveyAlreadySubmittedException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (SurveyAlreadySubmittedException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 return response()->json([
                     'error' => [
                         'code' => 'forbidden',
@@ -167,8 +177,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (ValidationException $exception, Request $request) {
-            if ($request->expectsJson()) {
+        $exceptions->render(function (ValidationException $exception, Request $request) use ($isApiRequest) {
+            if ($isApiRequest($request)) {
                 $fields = collect($exception->errors())
                     ->flatMap(fn (array $messages, string $field) => array_map(
                         fn (string $message) => ['field' => $field, 'message' => $message],

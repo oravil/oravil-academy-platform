@@ -97,6 +97,23 @@ describe('GET /v1/auth/me', function () {
                 ],
             ]);
     });
+
+    it('returns the approved 401 error contract without an Accept: application/json header', function () {
+        // get() — unlike getJson() — does not add an Accept: application/json
+        // header, reproducing a client that does not negotiate JSON.
+        $response = $this->get('/v1/auth/me');
+
+        $response->assertStatus(401)
+            ->assertHeader('Content-Type', 'application/json')
+            ->assertExactJson([
+                'error' => [
+                    'code' => 'unauthenticated',
+                    'message' => 'Authentication required.',
+                ],
+            ]);
+
+        expect($response->headers->has('Location'))->toBeFalse();
+    });
 });
 
 describe('POST /v1/auth/logout', function () {
