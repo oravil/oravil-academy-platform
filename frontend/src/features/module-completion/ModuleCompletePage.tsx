@@ -88,13 +88,24 @@ export function ModuleCompletePage() {
         </div>
       )}
 
-      <p className="text-sm text-muted-foreground">
-        Next, complete a short post-module survey to share your feedback.
-      </p>
+      {completion.survey_submitted ? (
+        <div className="flex items-center justify-center gap-2 rounded-md border p-4 text-center text-sm font-medium text-green-600">
+          <CheckCircle2 aria-hidden />
+          Post-module survey submitted — thank you for your feedback.
+        </div>
+      ) : (
+        <>
+          <p className="text-sm text-muted-foreground">
+            Next, complete a short post-module survey to share your feedback.
+          </p>
 
-      <Button className="w-full" disabled title="The post-module survey arrives in VS-006.">
-        Proceed to post-module survey
-      </Button>
+          <Button asChild className="w-full">
+            <Link to={`/modules/${completion.module_id}/survey`}>
+              Proceed to post-module survey
+            </Link>
+          </Button>
+        </>
+      )}
     </div>
   )
 }

@@ -55,7 +55,7 @@ describe('ModuleCompletePage', () => {
     expect(screen.getByText(/loading/i)).toBeInTheDocument()
   })
 
-  it('renders the module title, all four completed lessons, the deliverable, and a disabled survey action with the VS-006 tooltip', async () => {
+  it('renders the module title, all four completed lessons, the deliverable, and a live link to the survey', async () => {
     getModuleCompletion.mockResolvedValue(completionFixture)
 
     renderPage()
@@ -71,9 +71,30 @@ describe('ModuleCompletePage', () => {
     expect(screen.getAllByText('Complete')).toHaveLength(4)
     expect(screen.getByText(completionFixture.deliverable_description)).toBeInTheDocument()
 
-    const surveyButton = screen.getByRole('button', { name: /proceed to post-module survey/i })
-    expect(surveyButton).toBeDisabled()
-    expect(surveyButton).toHaveAttribute('title', 'The post-module survey arrives in VS-006.')
+    expect(screen.getByRole('link', { name: /proceed to post-module survey/i })).toHaveAttribute(
+      'href',
+      '/modules/module-1/survey'
+    )
+  })
+
+  it('renders an acknowledged completed state instead of a link when the survey has already been submitted', async () => {
+    getModuleCompletion.mockResolvedValue({ ...completionFixture, survey_submitted: true })
+
+    renderPage()
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Module Complete' })).toBeInTheDocument()
+    })
+
+    expect(
+      screen.getByText('Post-module survey submitted — thank you for your feedback.')
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', { name: /proceed to post-module survey/i })
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /proceed to post-module survey/i })
+    ).not.toBeInTheDocument()
   })
 
   it('provides a link back to Module Overview', async () => {

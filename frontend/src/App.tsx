@@ -7,6 +7,7 @@ import { ModuleOverviewPage } from './features/module-overview/ModuleOverviewPag
 import { LessonViewPage } from './features/lesson-view/LessonViewPage'
 import { AssignmentSubmissionPage } from './features/assignment-submission/AssignmentSubmissionPage'
 import { ModuleCompletePage } from './features/module-completion/ModuleCompletePage'
+import { SurveyPage } from './features/survey/SurveyPage'
 
 const queryClient = new QueryClient()
 
@@ -22,6 +23,7 @@ function App() {
               <Route path="/lessons/:lessonId" element={<LessonViewPage />} />
               <Route path="/lessons/:lessonId/assignment" element={<AssignmentSubmissionPage />} />
               <Route path="/modules/:moduleId/completion" element={<ModuleCompletePage />} />
+              <Route path="/modules/:moduleId/survey" element={<SurveyPage />} />
             </Route>
           </Routes>
         </AuthProvider>

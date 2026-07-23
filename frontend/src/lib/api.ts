@@ -193,3 +193,45 @@ export interface ModuleCompletionResponse {
 export function getModuleCompletion(moduleId: string): Promise<ModuleCompletionResponse> {
   return request<ModuleCompletionResponse>(`/v1/modules/${moduleId}/completion`)
 }
+
+export type SurveyQuestionType = 'rating' | 'text'
+
+export interface SurveyQuestionResponse {
+  survey_question_id: string
+  position: number
+  question_text: string
+  question_type: SurveyQuestionType
+  required: boolean
+}
+
+export interface SurveyResponse {
+  survey_id: string
+  module_id: string
+  title: string
+  questions: SurveyQuestionResponse[]
+}
+
+export interface SurveyAnswerInput {
+  survey_question_id: string
+  answer_text?: string
+  answer_rating?: number
+}
+
+export interface SurveySubmissionResponse {
+  survey_id: string
+  submitted_at: string
+}
+
+export function getSurvey(moduleId: string): Promise<SurveyResponse> {
+  return request<SurveyResponse>(`/v1/modules/${moduleId}/survey`)
+}
+
+export function submitSurveyResponse(
+  surveyId: string,
+  answers: SurveyAnswerInput[]
+): Promise<SurveySubmissionResponse> {
+  return request<SurveySubmissionResponse>(`/v1/surveys/${surveyId}/responses`, {
+    method: 'POST',
+    body: JSON.stringify({ answers }),
+  })
+}
