@@ -7,6 +7,8 @@ use App\Application\LearningPath\Exceptions\LessonLockedException;
 use App\Application\LearningPath\Exceptions\LessonNotFoundException;
 use App\Application\LearningPath\Exceptions\ModuleNotFoundException;
 use App\Application\Progress\Exceptions\ModuleNotCompleteException;
+use App\Application\Survey\Exceptions\SurveyAlreadySubmittedException;
+use App\Application\Survey\Exceptions\SurveyNotFoundException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -138,6 +140,28 @@ return Application::configure(basePath: dirname(__DIR__))
                     'error' => [
                         'code' => 'forbidden',
                         'message' => 'This module is not yet complete.',
+                    ],
+                ], 403);
+            }
+        });
+
+        $exceptions->render(function (SurveyNotFoundException $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'not_found',
+                        'message' => 'Survey not found.',
+                    ],
+                ], 404);
+            }
+        });
+
+        $exceptions->render(function (SurveyAlreadySubmittedException $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => [
+                        'code' => 'forbidden',
+                        'message' => 'This survey has already been submitted.',
                     ],
                 ], 403);
             }
