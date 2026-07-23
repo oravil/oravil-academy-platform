@@ -75,19 +75,35 @@
 
 ### 1.4 Not built yet [PLANNED]
 
-- Step 9 End-to-End Verification of OA-MVP-010 is the only step remaining.
-- (Content tables (9), Step 2 Content Seeding, Step 4 Module Overview,
-  Step 5 Lesson View, Step 6 Assignment Submission, Step 7 Module
-  Completion, and Step 8 Post-Module Survey are now COMPLETE — see §3
-  Tasks 6-11.)
+- Nothing remains in the OA-MVP-010 Development Order: all nine steps,
+  including Step 9 End-to-End Verification, are COMPLETE (see §3 Tasks
+  6-12). What follows is the pilot release per OA-MVP-010's Release
+  Strategy — it requires Product Owner direction and is not authorized
+  by this handoff (see §1.5 and docs repo PRODUCT_BACKLOG OA-BL-020 /
+  OA-BL-026).
 
 ### 1.5 Completion estimate
 
-Steps 1-8 of nine done in code (foundation, content seeding, authentication,
-module overview, lesson view, assignment submission, module completion,
-post-module survey), smoke test closed, CI green on all of it. All five
-MVP screens are built and Product Owner browser-verified. Step 9 (End-to-End
-Verification) remains — the only step left before OA-MVP-010 is fully closed.
+All nine steps of OA-MVP-010 are complete (foundation, content seeding,
+authentication, module overview, lesson view, assignment submission,
+module completion, post-module survey, end-to-end verification). Smoke
+test closed; CI green at verified HEAD `e656d61` (run `30050567080`).
+All five MVP screens are built and were Product Owner browser-verified
+in their respective slices (Tasks 7-11); this is a historical statement
+— Step 9 did NOT manually re-verify all five screens. Step 9 manual
+verification covered only the states recorded in Task 12. Step
+9 closed 2026-07-23 as PASS with two recorded qualifications (§3 Task
+12): further manual page/lesson browsing was explicitly skipped by the
+Product Owner (NOT EXECUTED), and 2 non-blocking ESLint react-refresh
+warnings remain open. Per OA-MVP-010's Release Strategy, Version 0.1 is
+released to pilot learners after Step 9 is complete and all Definition
+of Done criteria are satisfied for every step; the release process
+itself starts with a final end-to-end manual verification on the
+production environment. Pilot-launch prerequisites are tracked in the
+docs repo backlog (OA-BL-020 pilot language decision; OA-BL-026 learner
+provisioning tooling — both required pre-launch). No next implementation
+step is authorized by this handoff — the next work item requires a
+Product Owner decision.
 
 ---
 
@@ -305,8 +321,9 @@ assertions. Commit: `ca9418c`.
 | 11 | VS-006 — Post-Module Survey (Step 8 of OA-MVP-010): `GET /v1/modules/{module_id}/survey` + `POST /v1/surveys/{survey_id}/responses` per OA-MVP-007 (Phase B — new `Survey` namespace, `SurveyContentRepository` contract distinct from `Progress\Contracts\SurveyRepository`, transaction-wrapped multi-row insert), then the Post-Module Survey screen per OA-MVP-004 Screen 5 (Phase C) | Full gate matrix on both endpoints (403 module-not-complete, 403 already-submitted, validation per contract, 401, 404), `survey_submitted` proven to flip across progress and completion endpoints, screen live with the exact wireframe confirmation state | **COMPLETE** — Phase B commit `1ab5912` (`GetSurvey`/`SubmitSurveyResponse` use cases, `DatabaseSurveyContentRepository`, two new exceptions, controllers, `SubmitSurveyResponseRequest`, resources, routes). Phase C commit `cb14a94` (`SurveyPage`; Module Complete's primary action activated to a live link — fourth instance of the disable-then-activate pattern — with a completed/acknowledged state instead of a link when `survey_submitted` is true). `php artisan test`: 106 passed, 294 assertions. `pnpm test`: 50 passed (8 files). `pnpm lint`/`pint`/`phpstan`/Prettier: clean. CI green at HEAD (`cb14a94`) — run `30038423575`, success. Product Owner browser-verified live: Module Complete's live survey link, empty-submit client validation, real submission through the write path, the exact OA-MVP-004 Screen 5 confirmation state, the acknowledged state on revisit, and the graceful blocked state on direct-URL access post-submission — VS-006 COMPLETE end-to-end. All five MVP screens now built and verified. |
 | — | **Note (2026-07-23):** Product Owner confirmed the confirmation screen's lack of onward navigation is intentional — the app root (`/`) is Module Overview, so a learner retains a way back without an explicit link on the terminal screen. Any future explicit link would amend OA-MVP-004 first. |
 | — | **Note (2026-07-23):** verification used a scratch learner created and destroyed for that purpose alone (never the shared Test Learner), preserving the Test Learner's zero-survey-response state for the Product Owner's own click-through. |
+| 12 | Step 9 — End-to-End Verification (OA-MVP-010): full end-to-end pass of the learner journey per OA-MVP-003 and OA-MVP-007 — runtime state, migrations, routes, manual browser pass, manual API pass, full automated suites, CI at the verified HEAD | Final pass conducted by the Product Owner (OA-MVP-010: "a team member outside the development team where possible") + all automated suites green + CI green at the verified HEAD | **COMPLETE (2026-07-23)** — PASS, Post-Merge Verification completed. Verified HEAD `e656d61` == `origin/main`, working tree clean. Runtime: postgres:16-alpine healthy; all 13 migrations Ran; 10 `/v1` routes registered; protected routes use `Authenticate:sanctum`; seeded data verified (1 learning path `digital-marketing`, 1 phase, 1 module `module-1` incl. `purpose`, 4 lessons, 4 assignments, 4 submissions, 1 survey, 3 survey questions, 3 survey responses). Product Owner manual browser pass: Module Overview renders title, purpose, deliverable, and 4 lessons all Complete with the "Proceed to Module Complete" CTA; Module Completion renders "Module Complete", the deliverable, and the terminal survey state ("Post-module survey submitted — thank you for your feedback.") without re-presenting the form. **Further manual page/lesson browsing was explicitly skipped by the Product Owner — NOT EXECUTED** (reopening completed lessons; additional page-by-page checks) and is not recorded as passed. Manual API: unauthenticated `GET /v1/auth/me` and `GET /v1/modules/{module_id}/overview` → 401 with the approved envelope and CORS headers; 401 precedes resource lookup (nonexistent module UUID → 401); authenticated 404 behavior is covered by the automated suite, not independently re-proven manually. Backend: `php artisan test` → **107 passed, 299 assertions, 0 failures** (7.17s, PostgreSQL test configuration). Frontend: `pnpm lint` → 0 errors + **2 non-blocking react-refresh warnings** (`src/components/ui/button.tsx`, `src/features/auth/AuthContext.tsx` — recorded, deliberately not fixed); `pnpm prettier --check .` → clean; `pnpm test` → **50 passed (8 files)**; `pnpm build` → success. Findings remediated inside Step 9: S9-F-01 (`/v1/*` error envelope when `Accept: application/json` is absent) fixed in commit `e656d61` with regression coverage; S9-F-02 (assignment editing/versioning documentation contradiction) reconciled in docs repo commit `640c6b3` (OA-MVP-002/OA-MVP-003 → v1.1.0, pending Product Owner re-approval). CI run `30050567080` success at HEAD. Housekeeping: untracked root `pnpm-lock.yaml` removed (canonical lockfile is `frontend/pnpm-lock.yaml`) — do not recreate. |
 
-Tasks 6, 7, 8, 9, 10, and 11 require no new decisions — their specs are
+Tasks 6, 7, 8, 9, 10, 11, and 12 require no new decisions — their specs are
 complete in the docs repo. Anything not listed here is out of scope
 (CLAUDE.md §3).
 
