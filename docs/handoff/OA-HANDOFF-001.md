@@ -75,17 +75,19 @@
 
 ### 1.4 Not built yet [PLANNED]
 
-- VS-006 Post-Module Survey (Step 8 of OA-MVP-010) — next up, the final screen.
-- Step 9 End-to-End Verification of OA-MVP-010 remains after that.
+- Step 9 End-to-End Verification of OA-MVP-010 is the only step remaining.
 - (Content tables (9), Step 2 Content Seeding, Step 4 Module Overview,
-  Step 5 Lesson View, Step 6 Assignment Submission, and Step 7 Module
-  Completion are now COMPLETE — see §3 Tasks 6-10.)
+  Step 5 Lesson View, Step 6 Assignment Submission, Step 7 Module
+  Completion, and Step 8 Post-Module Survey are now COMPLETE — see §3
+  Tasks 6-11.)
 
 ### 1.5 Completion estimate
 
-Steps 1-7 of nine done in code (foundation, content seeding, authentication,
-module overview, lesson view, assignment submission, module completion),
-smoke test closed, CI green on all of it. Steps 8-9 remain.
+Steps 1-8 of nine done in code (foundation, content seeding, authentication,
+module overview, lesson view, assignment submission, module completion,
+post-module survey), smoke test closed, CI green on all of it. All five
+MVP screens are built and Product Owner browser-verified. Step 9 (End-to-End
+Verification) remains — the only step left before OA-MVP-010 is fully closed.
 
 ---
 
@@ -299,10 +301,14 @@ assertions. Commit: `ca9418c`.
 | — | **Note (2026-07-22):** the live dev DB now holds a fully-completed Module 1 (all 4 lessons submitted) for the seeded Test Learner, from the Product Owner's own VS-004 browser verification. Flagged, not acted on: anyone testing a "fresh state" flow (e.g. VS-002/VS-003's locked-lesson or in-progress states) against this DB will need a second learner or a submissions cleanup — the seeded Test Learner no longer represents a fresh enrollment. |
 | 10 | VS-005 — Module Completion (Step 7 of OA-MVP-010): `GET /v1/modules/{module_id}/completion` per OA-MVP-007 (Phase B, pure composition — zero new domain logic, OA-MVP-005 Rules 5-6 already enforced by `ModuleStatusRule`), then the Module Complete screen per OA-MVP-004 Screen 4 (Phase C) | 200 exact envelope for a completed learner, 403 for an incomplete module (fresh factory learner), screen live with the disabled post-survey action correctly NOT redirecting | **COMPLETE** — Phase B commit `0523e08` (`GetModuleCompletion` composing existing `ModuleRepository`/`ModuleProgressService`/`SurveyRepository`; no new repository, no new binding; `ModuleNotCompleteException` → 403). Phase C commit `bb81739` (`ModuleCompletePage`, Module Overview's primary action activated to a live link — third activation of that pattern). `php artisan test`: 86 passed. `pnpm test`: 37 passed (7 files). Prettier's check run locally before this push, closing the recurring CI-catch gap from Tasks 8-9. CI green at HEAD (`bb81739`) — run `29960905061`, both jobs success on the first push, no follow-up fix needed. Product Owner browser-verified live navigation from Module Overview, all four lessons shown Complete, deliverable reminder, and the survey action correctly disabled with its tooltip rather than redirecting — VS-005 COMPLETE end-to-end. |
 | — | **Note (2026-07-22):** judgment call on the Module Complete screen's primary action reversed from the VS-004 precedent — Product Owner's reasoning: VS-004's redirect-to-Overview was forced (no true destination existed yet for a mid-flow waypoint); the Completion screen is a terminal destination the learner has already reached, so a disabled action with a tooltip ("arrives in VS-006") is the honest affordance, matching VS-002's "Begin Lesson 1" pattern — redirecting backward off an achievement screen was rejected as negative motion. VS-006 activates this button as its fourth instance of the disable-then-activate pattern. |
-| — | **Note (2026-07-22):** Husky pre-commit hook does not currently run Prettier's check — caught manually before this push (and the two before it required a CI-caught follow-up fix). Tracked for a small follow-up commit in VS-006's batch: add the Prettier check to the pre-commit hook so this is enforced automatically. |
+| — | **Note (2026-07-22):** Husky pre-commit hook does not currently run Prettier's check — caught manually before this push (and the two before it required a CI-caught follow-up fix). Tracked for a small follow-up commit in VS-006's batch: add the Prettier check to the pre-commit hook so this is enforced automatically. **Status (2026-07-23): still open, NOT resolved in VS-006's batch** — the root `package.json` has no `lint-staged` config at all (a bare `npx lint-staged` currently resolves an unlocked version from the network, not the pinned devDependency, since root `node_modules` was never installed), so this is a slightly larger fix than "add Prettier to lint-staged" implied. Flagged rather than silently carried forward or silently expanded into; awaiting Product Owner direction (fix now vs. backlog). |
+| 11 | VS-006 — Post-Module Survey (Step 8 of OA-MVP-010): `GET /v1/modules/{module_id}/survey` + `POST /v1/surveys/{survey_id}/responses` per OA-MVP-007 (Phase B — new `Survey` namespace, `SurveyContentRepository` contract distinct from `Progress\Contracts\SurveyRepository`, transaction-wrapped multi-row insert), then the Post-Module Survey screen per OA-MVP-004 Screen 5 (Phase C) | Full gate matrix on both endpoints (403 module-not-complete, 403 already-submitted, validation per contract, 401, 404), `survey_submitted` proven to flip across progress and completion endpoints, screen live with the exact wireframe confirmation state | **COMPLETE** — Phase B commit `1ab5912` (`GetSurvey`/`SubmitSurveyResponse` use cases, `DatabaseSurveyContentRepository`, two new exceptions, controllers, `SubmitSurveyResponseRequest`, resources, routes). Phase C commit `cb14a94` (`SurveyPage`; Module Complete's primary action activated to a live link — fourth instance of the disable-then-activate pattern — with a completed/acknowledged state instead of a link when `survey_submitted` is true). `php artisan test`: 106 passed, 294 assertions. `pnpm test`: 50 passed (8 files). `pnpm lint`/`pint`/`phpstan`/Prettier: clean. CI green at HEAD (`cb14a94`) — run `30038423575`, success. Product Owner browser-verified live: Module Complete's live survey link, empty-submit client validation, real submission through the write path, the exact OA-MVP-004 Screen 5 confirmation state, the acknowledged state on revisit, and the graceful blocked state on direct-URL access post-submission — VS-006 COMPLETE end-to-end. All five MVP screens now built and verified. |
+| — | **Note (2026-07-23):** Product Owner confirmed the confirmation screen's lack of onward navigation is intentional — the app root (`/`) is Module Overview, so a learner retains a way back without an explicit link on the terminal screen. Any future explicit link would amend OA-MVP-004 first. |
+| — | **Note (2026-07-23):** verification used a scratch learner created and destroyed for that purpose alone (never the shared Test Learner), preserving the Test Learner's zero-survey-response state for the Product Owner's own click-through. |
 
-Tasks 6, 7, 8, 9, and 10 require no new decisions — their specs are complete
-in the docs repo. Anything not listed here is out of scope (CLAUDE.md §3).
+Tasks 6, 7, 8, 9, 10, and 11 require no new decisions — their specs are
+complete in the docs repo. Anything not listed here is out of scope
+(CLAUDE.md §3).
 
 **FOUNDATION CLOSED — 2026-07-21.** Tasks 0–5 all complete, gates satisfied,
 evidence recorded above and in §1–§2. Tag `platform-foundation-v1.1` (commit
