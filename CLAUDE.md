@@ -96,7 +96,7 @@ fails): pdo_pgsql was missing once; local PostgreSQL conflicted on port 5432;
 db `oravil_academy`, user `oravil` (password in `.env.docker`).
 
 ```bash
-make bootstrap        # full setup (KNOWN BUG PMV-001: reports success even if migrate fails — see handoff)
+make bootstrap        # full setup
 make dev              # docker up + artisan serve (8000) + vite dev (5173)
 make test             # backend + frontend tests
 make lint             # pint + phpstan + eslint
