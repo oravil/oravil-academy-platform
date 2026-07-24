@@ -250,7 +250,7 @@ route rendered correctly, no unexpected logout or anonymous session reset).
 7. Report back: which steps passed/failed, and paste/screenshot any
    unexpected status codes from the Network tab.
 
-### PMV-001 — bootstrap.sh reports success when migrate fails [PLANNED]
+### PMV-001 — bootstrap.sh reports success when migrate fails [RESOLVED — 2026-07-21, §3 Task 3]
 
 Root cause found (OA-AUDIT-001 §6): `scripts/bootstrap.sh` line 142 —
 
@@ -357,10 +357,15 @@ evidence recorded above and in §1–§2. Tag `platform-foundation-v1.1` (commit
    while functioning as approved references. Formally promote to Approved?
 3. ~~Confirm the browser URL used during smoke testing (needed for PMV-002
    D1).~~ **RESOLVED 2026-07-21:** `http://localhost:5173`.
-4. **Backlog (2026-07-21):** What is the actual provisioning process for
+4. ~~**Backlog (2026-07-21):** What is the actual provisioning process for
    real pilot learners at launch time? ADR-0005 mandates manual provisioning
    with no self-registration, but no document defines the mechanism
    (artisan command? manual DB insert? admin script?). Product Owner
-   decision needed before launch, not before Task 6/7.
+   decision needed before launch, not before Task 6/7.~~ **RESOLVED
+   2026-07-23:** Product Owner decision recorded in docs repo
+   PRODUCT_BACKLOG OA-BL-026 — artisan CLI commands, not an admin panel:
+   (a) create learner, (b) reset learner password, (c) export submissions
+   for manual rubric grading. The tooling itself remains a deferred
+   pre-launch backlog item (OA-BL-026) — not yet implemented.
 
 **END OF OA-HANDOFF-001**
