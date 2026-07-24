@@ -41,6 +41,10 @@ of silently complying.
   Tailwind 4, shadcn/ui
 - Testing: Pest (backend), Vitest + Testing Library (frontend)
 - Quality: Pint, PHPStan, ESLint, Prettier, Husky, lint-staged, Commitlint
+- Learner presentation: **Arabic-only** in v0.1 (ADR-0008). No i18n library,
+  translation framework, language switcher, or `learners.preferred_language`.
+  API contracts stay English; learner-facing Arabic copy is keyed on
+  `error.code` — the English `error.message` is never shown to learners.
 
 Identity model (ADR-0005): table `learners` ONLY —
 `id uuid PK default gen_random_uuid()`, `email text unique`, `display_name text`,
@@ -107,18 +111,17 @@ Error envelope (all endpoints): `{"error": {"code", "message", "fields?"}}`;
 401 `unauthenticated` / `invalid_credentials`, 403 `forbidden`,
 419 `CSRF_TOKEN_MISMATCH`, 422 `validation_error`.
 
-## 6. Current state pointer (as of 2026-07-21 — OA-AUDIT-001)
+## 6. Current state pointer (as of 2026-07-24)
 
-- Foundation + VS-001 Authentication: implemented, tested, CI green-capable.
-  All OA-REV-003 findings F-1..F-7 are RESOLVED in code. Do not re-fix them.
-- ONE open blocker: browser session persistence bug (login OK → refresh →
-  `/v1/auth/me` 401). Root cause UNKNOWN. Ranked suspects and the mandatory
-  diagnostic sequence are in the handoff. Start there. Nothing else proceeds
-  until it is fixed and the smoke test closes.
-- Content tables (`learning_paths`, `phases`, `modules`, `lessons`,
-  `assignments`, `assignment_submissions`, `surveys`, `survey_questions`,
-  `survey_responses`) — 9 tables, created via migration in Task 6 Phase A and
-  seeded with Phase 0 Module 1 content in Task 6 Phase B. VS-002 (Module
-  Overview) is the next slice.
+Detailed current state, open items, and task order: `docs/handoff/OA-HANDOFF-001.md`.
+
+- OA-MVP-010 Steps 1-9 are complete. All six vertical slices (VS-001
+  Authentication through VS-006 Post-Module Survey) are implemented, tested,
+  and browser-verified; Step 9 (Post-Merge / End-to-End Verification) is
+  closed at commit `74432dc`.
+- Next phase: pre-pilot. Pre-launch items live in the handoff and
+  `docs/PRODUCT_BACKLOG.md` (docs repo) — e.g. OA-BL-026 learner provisioning
+  tooling and the Arabic learner presentation work governed by ADR-0008.
+  No new vertical slice is authorized by this snapshot.
 - Definition of Done for every slice: the eleven criteria in OA-MVP-010
   (docs repo) — including CI proving behaviour, not just style.
