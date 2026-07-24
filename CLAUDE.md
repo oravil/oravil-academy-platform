@@ -106,7 +106,13 @@ cd frontend && pnpm test                   # Vitest
 ```
 
 API base: `http://localhost:8000`, prefix `/v1`. Frontend dev: `http://localhost:5173`.
-Existing endpoints: `POST /v1/auth/login`, `POST /v1/auth/logout`, `GET /v1/auth/me`.
+Existing endpoints: `POST /v1/assignments/{assignment_id}/submissions`,
+`POST /v1/auth/login`, `POST /v1/auth/logout`, `GET /v1/auth/me`,
+`GET /v1/learners/me/progress/{module_id}`, `GET /v1/lessons/{lesson_id}`,
+`GET /v1/modules/{module_id}/completion`, `GET /v1/modules/{module_id}/overview`,
+`GET /v1/modules/{module_id}/survey`, `POST /v1/surveys/{survey_id}/responses`.
+All require `auth:sanctum` EXCEPT `POST /v1/auth/login` (public by design —
+a learner is not authenticated yet when logging in).
 Error envelope (all endpoints): `{"error": {"code", "message", "fields?"}}`;
 401 `unauthenticated` / `invalid_credentials`, 403 `forbidden`,
 419 `CSRF_TOKEN_MISMATCH`, 422 `validation_error`.

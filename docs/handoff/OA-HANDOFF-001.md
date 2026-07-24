@@ -79,8 +79,9 @@
   including Step 9 End-to-End Verification, are COMPLETE (see §3 Tasks
   6-12). What follows is the pilot release per OA-MVP-010's Release
   Strategy — it requires Product Owner direction and is not authorized
-  by this handoff (see §1.5 and docs repo PRODUCT_BACKLOG OA-BL-020 /
-  OA-BL-026).
+  by this handoff (see §1.5 and docs repo PRODUCT_BACKLOG OA-BL-020
+  [RESOLVED 2026-07-24 — ADR-0008, Arabic-only v0.1 learner
+  presentation] / OA-BL-026).
 
 ### 1.5 Completion estimate
 
@@ -100,8 +101,9 @@ released to pilot learners after Step 9 is complete and all Definition
 of Done criteria are satisfied for every step; the release process
 itself starts with a final end-to-end manual verification on the
 production environment. Pilot-launch prerequisites are tracked in the
-docs repo backlog (OA-BL-020 pilot language decision; OA-BL-026 learner
-provisioning tooling — both required pre-launch). No next implementation
+docs repo backlog (OA-BL-020 pilot language decision [RESOLVED 2026-07-24
+— ADR-0008: Arabic-only v0.1 learner presentation]; OA-BL-026 learner
+provisioning tooling — remains required pre-launch). No next implementation
 step is authorized by this handoff — the next work item requires a
 Product Owner decision.
 
